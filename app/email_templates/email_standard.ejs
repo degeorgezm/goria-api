@@ -1,0 +1,47 @@
+<%- include('_partials/_header.ejs'); %>
+
+<%- include('_partials/_row_start.ejs',{title:  "Welcome " + user + ","}); %>
+    We built Timeline for organizations of all sizes that are passionate about finding better ways to work. There are two ways
+    to access Timeline.
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs',{title:"iOS App"}); %>
+    Our iOS App automatically generated using our location-based algorithm, allowing your team to focus on the work instead of
+    tedious data entry. Team members can add pictures and video to their time entries to showcase their work.
+    Remove communication silos with built in chat functionality between the mobile application and online dashboard.
+    Get detailed information from the field into the back office with the ability to take and attach pictures
+    using our mobile application.
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs'); %>
+    <div class="alert alert-info" style="color: #31708f;background-color: #d9edf7;border-color: #bce8f1;padding: 15px;margin-bottom: 20px;border: 1px solid transparent;border-radius: 4px;">
+        <strong>Phone Number:</strong> <%= phone %><br><strong>Organization Code:</strong> <%= code %>
+    </div>
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs',{align:"center"}); %>
+    <a href="<%= app_store_link %>">
+        <img border="0" alt="Download on App Store" style="margin: 0;padding: 0;" src="https://timelinefm.com/wp-content/uploads/2018/05/Download_on_the_App_Store_Badge_US-UK_135x40.png">
+    </a>
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs',{title:"Admin Dashboard"}); %>
+    Timeline’s administrative functionality it designed for fast performance, reliability, and scalability. Real-time access
+    to Key Performance Indicators empowers team members across the organization to make better
+    decisions. Timeline eliminates information overload and ensures the right KPIs are delivered
+    to the right people at the right time. Our responsive design intelligently scales to your
+    screen size allowing for the same functionality on a mobile phone, tablet, computer, or larger
+    screen.
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs'); %>
+    <div class="alert alert-info" style="color: #31708f;background-color: #d9edf7;border-color: #bce8f1;padding: 15px;margin-bottom: 20px;border: 1px solid transparent;border-radius: 4px;">
+        <strong>Email:</strong> <%= email %>
+    </div>
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs',{align:"center"}); %>
+<a href="<%= app_base_url %>" class="btn-primary" style="margin: 0;padding: 0;font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;color: #FFF;text-decoration: none;background-color: #1ab394;border: solid #1ab394;border-width: 5px 10px;line-height: 2;font-weight: bold;text-align: center;cursor: pointer;display: inline-block;border-radius: 5px;text-transform: capitalize;">Admin Dashboard</a>
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_footer.ejs'); %>

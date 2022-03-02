@@ -1,0 +1,44 @@
+<%- include('_partials/_header.ejs'); %>
+
+<%- include('_partials/_row_start.ejs',{title:  "Invoice available"}); %>
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs'); %>
+    Dear <%= name %>,
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs'); %>
+Your Timeline <b><%= plan_name %></b> monthly invoice is available.
+
+<%- include('_partials/_row_start.ejs'); %>
+    <div class="alert alert-info" style="color: #31708f;background-color: #d9edf7;border-color: #bce8f1;padding: 15px;margin-bottom: 20px;border: 1px solid transparent;border-radius: 4px;">
+    IMPORTANT: The balance will be automatically charged so you don’t need to take any action.
+    </div>
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs'); %>
+If you want to view your payment history or update your payment info, visit your account by following the instructions below:
+    <ul>
+        <li>Sign in to your Timeline Admin Console at app.timelinefm.com.</li>
+        <li>Select 'Account'.</li>
+        <li>Select the 'Invoices' tab.</li>
+    </ul>
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs'); %>
+    For more info, please visit your account dashboard. 
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs',{align:"center"}); %>
+<a href="<%= hosted_invoice_url  %>" class="btn-primary" style="margin: 0;padding: 0;font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;color: #FFF;text-decoration: none;background-color: #1ab394;border: solid #1ab394;border-width: 5px 10px;line-height: 2;font-weight: bold;text-align: center;cursor: pointer;display: inline-block;border-radius: 5px;text-transform: capitalize;">View Invoice</a>
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs'); %>
+    Need extra help? Our support team has the answers you need to get up and running fast. Contact us by phone or email, or visit the Help Center.
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_row_start.ejs'); %>
+    Thanks,<br> The Timeline Team
+<%- include('_partials/_row_end.ejs'); %>
+
+<%- include('_partials/_footer.ejs'); %>
