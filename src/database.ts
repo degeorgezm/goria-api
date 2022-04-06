@@ -12,25 +12,20 @@
  *
  */
 
-import { MongoClient } from "mongodb";
+import { MongoClient, Collection } from "mongodb";
 
 import { MONGODB_URL, MONGODB_DATABASE } from "./config";
 
 const client = new MongoClient(MONGODB_URL);
 
-export const connect = async () => {
+export const connect = async (): Promise<boolean> => {
   try {
     await client.connect();
     console.info("Database connected");
-    // const test_collection = client.db("test").collection("test");
-    // if (test_collection) {
-    //   const test_entry = await test_collection.find({ test: "true" }).toArray();
-    //   if (test_entry) {
-    //     console.info("Test entry found: ", test_entry);
-    //   }
-    // }
+    return true;
   } catch (error) {
     console.error("Error connecting to database: ", error);
+    return false;
   }
 };
 

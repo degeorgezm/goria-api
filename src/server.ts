@@ -14,6 +14,8 @@
 
 import express from "express";
 
+import { userRouter } from "./routes";
+
 import { PORT, LOGGING_ENABLED, VERSION } from "./config";
 
 const app = express();
@@ -43,10 +45,12 @@ app.get("/", function (req, res) {
   res.status(200).send(response);
 });
 
+app.use("/users", userRouter);
+
 // app.init();
 
 export const start = async () => {
   app.listen(PORT, () => {
-    console.error(`Server is listening on port ${PORT}`);
+    console.error(`Server is listening at http://localhost:${PORT}`);
   });
 };

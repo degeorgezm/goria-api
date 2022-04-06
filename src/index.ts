@@ -12,11 +12,11 @@
  *
  */
 
-import { connect } from "./database";
+import { initialize } from "./services";
 import { start } from "./server";
 
 async function main() {
-  await connect();
+  await initialize();
 
   await start();
 }

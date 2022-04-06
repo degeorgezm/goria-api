@@ -2,10 +2,7 @@
   "restartable": "rs",
   "ignore": [".git", "node_modules/**/node_modules"],
   "verbose": true,
-  "execMap": {
-    "ts": "ts-node"
-  },
-  "watch": ["src/", "scripts/"],
+  "watch": ["dist/", "scripts/"],
   "env": {
     "NODE_ENV": "development"
   },

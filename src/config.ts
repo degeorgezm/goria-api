@@ -137,7 +137,6 @@ export const CONFIG = {
     secretOrKey: JWT_SECRET_KEY,
     issuer: JWT_SECRET_ISSUER_AUDIENCE,
     audience: JWT_SECRET_ISSUER_AUDIENCE,
-    algorithm: "HS256",
-    expiration: "30 days",
+    expiration: "30d",
   },
 };
