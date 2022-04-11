@@ -14,7 +14,7 @@
 
 import express from "express";
 
-import { userRouter } from "./routes";
+import { userRouter, addressRouter } from "./routes";
 
 import { PORT, LOGGING_ENABLED, VERSION } from "./config";
 
@@ -45,7 +45,8 @@ app.get("/", function (req, res) {
   res.status(200).send(response);
 });
 
-app.use("/users", userRouter);
+app.use("/user", userRouter);
+app.use("/address", addressRouter);
 
 // app.init();
 

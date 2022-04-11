@@ -2,11 +2,14 @@
 
 // External dependencies
 
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model, NativeError } from "mongoose";
 import { sign } from "jsonwebtoken";
 import { genSalt, hash, compare } from "bcryptjs";
+import mongooseDeepPopulate from "mongoose-deep-populate";
+import { Document, MongoError } from "mongodb";
 
 import { CONFIG } from "./../../config";
+import { Address } from "../Addresses";
 
 // Declarations
 
@@ -47,7 +50,7 @@ interface IUser {
 }
 
 // 2. Create a Schema corresponding to the document interface.
-const userSchema = new Schema<IUser>(
+const UserSchema = new Schema(
   {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -77,7 +80,41 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-userSchema.methods.generateToken = function () {
+UserSchema.plugin(mongooseDeepPopulate(mongoose), {});
+
+UserSchema.pre(
+  "save",
+  async function (
+    this: Document,
+    next: (err?: NativeError) => void,
+    data: any
+  ) {
+    if (this.email) {
+      if (this.role === Roles.USER) {
+        this.username = this.email;
+      }
+    }
+
+    if (this.isModified("phone")) {
+      let twilio = this.phone.replace(/\D/g, "");
+      if (twilio.charAt(0) != "1") twilio = "1" + twilio;
+      this.twilio = twilio;
+    }
+
+    if (this.isModified("password")) {
+      const salt = await genSalt(CONFIG.database.salt_work_factor);
+      this.password = await hash(this.password, salt);
+    }
+
+    return next();
+  }
+);
+
+UserSchema.post("deleteOne", async function (reponse) {
+  console.log("User Deleted: ", reponse);
+});
+
+UserSchema.methods.generateToken = function () {
   const token = sign(
     {
       user_id: this.id,
@@ -97,34 +134,13 @@ userSchema.methods.generateToken = function () {
   return token;
 };
 
-userSchema.pre("save", async function (next) {
-  if (this.isModified("email")) {
-    if (this.role === Roles.USER) {
-      this.username = this.email;
-    }
-  }
-
-  if (this.isModified("phone")) {
-    let twilio = this.phone.replace(/\D/g, "");
-    if (twilio.charAt(0) != "1") twilio = "1" + twilio;
-    this.twilio = twilio;
-  }
-
-  if (this.isModified("password")) {
-    const salt = await genSalt(CONFIG.database.salt_work_factor);
-    this.password = await hash(this.password, salt);
-  }
-
-  return next();
-});
-
-userSchema.methods.validPassword = async function (candidate) {
+UserSchema.methods.validPassword = async function (candidate) {
   return await compare(candidate, this.password);
 };
 
-userSchema.methods.admin = async function () {
+UserSchema.methods.admin = async function () {
   return this.role <= Roles.ADMIN;
 };
 
 // 3. Create a Model.
-export const User = model<IUser>("User", userSchema);
+export const User = model<IUser>("User", UserSchema);

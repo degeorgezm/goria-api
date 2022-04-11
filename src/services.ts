@@ -14,8 +14,6 @@ import { SECRET_KEY } from "./config";
 // Initialize Connection
 
 export async function initialize() {
-  User.init();
-
   await connect();
 
   const super_admins = await User.find({ role: Roles.SUPER_ADMIN });
