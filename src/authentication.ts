@@ -15,10 +15,11 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
-import { User } from "./schemas";
 import express, { Request, Response } from "express";
 
-import { CONFIG } from "./config";
+import { User } from "./schemas";
+
+import { CONFIG, JWT_AUTH_HEADER } from "./config";
 
 export const set_authorization_strategy = (app) => {
   // Define Passport strategy for authenticating with a username and password.
@@ -49,27 +50,22 @@ export const set_authorization_strategy = (app) => {
     secretOrKey: CONFIG.jwt.secretOrKey,
     issuer: CONFIG.jwt.issuer,
     audience: CONFIG.jwt.audience,
+    jwtFromRequest: ExtractJwt.fromHeader(JWT_AUTH_HEADER),
   };
 
   // This module lets you authenticate endpoints using a JSON web token.
   // It is intended to be used to secure RESTful endpoints without sessions.
   // https://github.com/themikenicholson/passport-jwt
   passport.use(
-    new JwtStrategy(
-      {
-        ...JWT_STRATEGY_CONFIG,
-        jwtFromRequest: ExtractJwt.fromHeader("goria-authorization"),
-      },
-      async function (jwt_payload, done) {
-        try {
-          const user = await User.findOne({ _id: jwt_payload.user_id });
-          return done(null, user);
-        } catch (error) {
-          console.error(error);
-          return done(error, null);
-        }
+    new JwtStrategy(JWT_STRATEGY_CONFIG, async function (jwt_payload, done) {
+      try {
+        const user = await User.findOne({ _id: jwt_payload.user_id });
+        return done(null, user);
+      } catch (error) {
+        console.error(error);
+        return done(error, null);
       }
-    )
+    })
   );
 };
 
@@ -181,7 +177,7 @@ roles.ADMIN = function (req, res, next) {
 // Controller Functions
 
 export const authenticate = function (req, res) {
-  res.status(200).set("goria-authorization", req.token).send(req.user);
+  res.status(200).set(JWT_AUTH_HEADER, req.token).send(req.user);
 };
 
 export const verifyToken = function (req, res) {

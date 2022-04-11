@@ -94,6 +94,7 @@ export const JWT_SECRET_KEY = requireEnv("JWT_SECRET_KEY");
 export const JWT_SECRET_ISSUER_AUDIENCE = requireEnv(
   "JWT_SECRET_ISSUER_AUDIENCE"
 );
+export const JWT_AUTH_HEADER = requireEnv("JWT_AUTH_HEADER");
 
 export const IAM_ACCESS_KEY_ID = requireEnv("IAM_ACCESS_KEY_ID");
 export const IAM_SECRET_ACCESS_KEY = requireEnv("IAM_SECRET_ACCESS_KEY");
