@@ -2,9 +2,12 @@
   "restartable": "rs",
   "ignore": [".git", "node_modules/**/node_modules"],
   "verbose": true,
-  "watch": ["dist/", "scripts/"],
+  "watch": ["src/", "scripts/"],
   "env": {
     "NODE_ENV": "development"
+  },
+  "execMap": {
+    "ts": "ts-node"
   },
   "ext": "js ts json env"
 }

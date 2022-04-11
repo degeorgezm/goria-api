@@ -8,19 +8,24 @@
  * zach@as3ics.com
  *
  * @format
- * @abstract Initializes the mongodb databse connection
+ * @abstract Initializes the mongoose mongodb databse connection
  *
  */
 
-import { MongoClient, Collection } from "mongodb";
+import { connect as mongoose_connect } from "mongoose";
 
-import { MONGODB_URL, MONGODB_DATABASE } from "./config";
+import { MONGODB_URL } from "./config";
 
-const client = new MongoClient(MONGODB_URL);
-
+/**
+ *
+ * @abstract Connects to the mongodb database or cluster using mongoose based on the MONGODB_URL environment variable
+ *
+ * @returns Promise<boolean>
+ *
+ */
 export const connect = async (): Promise<boolean> => {
   try {
-    await client.connect();
+    await mongoose_connect(MONGODB_URL);
     console.info("Database connected");
     return true;
   } catch (error) {
@@ -28,5 +33,3 @@ export const connect = async (): Promise<boolean> => {
     return false;
   }
 };
-
-export const db = client.db(MONGODB_DATABASE);

@@ -3,33 +3,39 @@
 import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
-import { User } from "./../../schemas";
-import { collections } from "./../../services";
+
 import { BaseController } from "../../controllers";
-import { Roles, hashPassword } from "./../../schemas/Users/User";
-import { ObjectId } from "mongodb";
+import { Roles } from "./../../schemas/Users/User";
+import { User } from "./../../schemas";
 
 export class UserController extends BaseController {
   public async create(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
+    let validation = "";
+    if (!req.body.firstName) validation += "firstName ";
+    if (!req.body.lastName) validation += " lastName ";
+    if (!req.body.password) validation += " password ";
+    if (!req.body.email) validation += "email ";
+    if (req.body.username) validation + "!username ";
+    if (req.body.role) validation += "!role ";
+
+    if (validation)
+      return res
+        .status(400)
+        .send({ validation_error: "Validatation errors: " + validation });
+
     try {
-      const user = {
+      const user = await User.create({
         ...req.body,
         role: Roles.USER,
-        username: req.body["email"] || "",
-      } as User;
-      user.password = hashPassword(user.password);
-
-      const result = await collections.users.insertOne(user);
-
-      result
-        ? res.status(201).send({ id: result.insertedId })
-        : res.status(500).send({ error: "Failed to insert new user." });
+        username: req.body.email,
+      });
+      return res.status(202).send(user);
     } catch (error) {
       console.error(error);
-      res.status(400).send(error);
+      return res.status(400).send(error);
     }
   }
   public async read(
@@ -38,19 +44,28 @@ export class UserController extends BaseController {
   ) {
     const id = req?.params?.id;
 
-    if (id) {
-      try {
-        const query = { _id: new ObjectId(id) };
-        const user = (await collections.users.findOne(
-          query
-        )) as unknown as User;
-        user
-          ? res.status(200).send(user)
-          : res.status(404).send({ error: "User not found." });
-      } catch (error) {
-        console.error(error);
-        res.status(400).send(error);
-      }
+    if (!id) return res.status(400).send({ validation_error: "id not found." });
+
+    try {
+      const user = await User.findOne({
+        _id: id,
+      });
+      return res.status(200).send(user);
+    } catch (error) {
+      console.error(error);
+      return res.status(400).send(error);
+    }
+  }
+  public async read_all(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>
+  ) {
+    try {
+      const users = await User.find({});
+      return res.status(200).send(users);
+    } catch (error) {
+      console.error(error);
+      return res.status(400).send(error);
     }
   }
   public update(
@@ -66,3 +81,5 @@ export class UserController extends BaseController {
     throw new Error("Method not implemented.");
   }
 }
+
+export const userController = new UserController();

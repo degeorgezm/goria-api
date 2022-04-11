@@ -121,6 +121,8 @@ export const DEFAULT_SETTINGS_DOC_NAME = requireEnv(
   "default"
 );
 
+export const SECRET_KEY = requireEnv("SECRET_KEY");
+
 export const CONFIG = {
   server: {
     port: PORT,

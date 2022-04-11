@@ -1,4 +1,3 @@
 /** @format */
 
-import { router as userRouter } from "./routes";
-export { userRouter };
+export { router as userRouter } from "./routes";

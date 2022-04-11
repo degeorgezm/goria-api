@@ -1,7 +1,7 @@
 /** @format */
 
 import express, { Request, Response } from "express";
-import { userController } from "../../controllers/User";
+import { userController } from "../../controllers";
 
 export const router = express.Router({
   strict: true,
@@ -9,6 +9,10 @@ export const router = express.Router({
 
 router.post("/", (req: Request, res: Response) => {
   userController.create(req, res);
+});
+
+router.get("/", (req: Request, res: Response) => {
+  userController.read_all(req, res);
 });
 
 router.get("/:id", (req: Request, res: Response) => {

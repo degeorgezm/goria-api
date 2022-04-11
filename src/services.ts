@@ -2,29 +2,35 @@
 
 // External Dependencies
 
-import { Collection } from "mongodb";
+import { Roles } from "./schemas/Users/User";
+import { connect } from "./database";
 
-import { db, connect } from "./database";
 import { User } from "./schemas";
+
+import { SECRET_KEY } from "./config";
 
 // Global Variables
 
-export const collections: {
-  users?: Collection;
-} = {};
-
 // Initialize Connection
 
-export const initialize = async () => {
-  const connected = await connect();
-  if (connected) {
-    collections.users = db.collection(User.collection_name);
-    console.log(
-      `Successfully connected to database: ${
-        db.databaseName
-      } with collections: ${
-        collections.users?.collectionName
-      } - ${new Date().toLocaleString()}`
-    );
+export async function initialize() {
+  User.init();
+
+  await connect();
+
+  const super_admins = await User.find({ role: Roles.SUPER_ADMIN });
+  if (super_admins.length == 0) {
+    console.info("Super Admin not found. Creating...");
+    await User.create({
+      firstName: "Zach",
+      lastName: "DeGeorge",
+      email: "zach@as3ics.com",
+      username: "zach",
+      password: SECRET_KEY,
+      role: Roles.SUPER_ADMIN,
+    });
+    console.info("Super Admin created");
+  } else {
+    console.log("Super Admin found.");
   }
-};
+}
