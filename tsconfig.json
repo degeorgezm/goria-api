@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "noEmit": false,
+    "outDir": "./dist",
+    "inlineSourceMap": true,
+    "strictNullChecks": false,
+    "baseUrl": "./src",
+    "typeRoots": ["./node_modules/@types/", "@types"]
+  },
+  "ts-node": {
+    "files": true,
+    "inlineSourceMap": true,
+    "transpileOnly": true
+  },
+  "include": ["@types", "src", "scripts"],
+  "exclude": ["node_modules", ".vscode", ".git", "legacy"]
+}
