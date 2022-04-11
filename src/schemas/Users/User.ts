@@ -8,6 +8,8 @@ import { genSalt, hash, compare } from "bcryptjs";
 import mongooseDeepPopulate from "mongoose-deep-populate";
 import { Document, MongoError } from "mongodb";
 
+import { JWT_PAYLOAD } from "../../authentication";
+
 import { CONFIG } from "./../../config";
 
 // Declarations
@@ -116,23 +118,20 @@ UserSchema.post("deleteOne", async function (reponse) {
   console.log("User Deleted: ", reponse);
 });
 
-UserSchema.methods.generateToken = function () {
-  const token = sign(
-    {
-      user_id: this.id,
-      username: this.username,
-      email: this.email,
-      role: this.role,
-      admin: this.admin,
-    },
-    CONFIG.jwt.secretOrKey,
-    {
-      audience: CONFIG.jwt.audience,
-      issuer: CONFIG.jwt.issuer,
-      expiresIn: CONFIG.jwt.expiration,
-      algorithm: "HS512",
-    }
-  );
+UserSchema.methods.generateToken = function (): string {
+  const payload: JWT_PAYLOAD = {
+    user_id: this.id,
+    username: this.username,
+    email: this.email,
+    role: this.role,
+    admin: this.admin,
+  };
+  const token = sign(payload, CONFIG.jwt.secretOrKey, {
+    audience: CONFIG.jwt.audience,
+    issuer: CONFIG.jwt.issuer,
+    expiresIn: CONFIG.jwt.expiration,
+    algorithm: CONFIG.jwt.algorithm,
+  });
   return token;
 };
 

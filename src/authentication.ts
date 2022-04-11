@@ -21,6 +21,14 @@ import { User } from "./schemas";
 
 import { CONFIG, JWT_AUTH_HEADER } from "./config";
 
+export type JWT_PAYLOAD = {
+  user_id: string;
+  username: string;
+  email: string;
+  role: number;
+  admin: boolean;
+};
+
 export const set_authorization_strategy = (app) => {
   // Define Passport strategy for authenticating with a username and password.
   app.use(passport.initialize());
@@ -57,7 +65,10 @@ export const set_authorization_strategy = (app) => {
   // It is intended to be used to secure RESTful endpoints without sessions.
   // https://github.com/themikenicholson/passport-jwt
   passport.use(
-    new JwtStrategy(JWT_STRATEGY_CONFIG, async function (jwt_payload, done) {
+    new JwtStrategy(JWT_STRATEGY_CONFIG, async function (
+      jwt_payload: JWT_PAYLOAD,
+      done
+    ) {
       try {
         const user = await User.findOne({ _id: jwt_payload.user_id });
         return done(null, user);

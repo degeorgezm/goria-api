@@ -13,6 +13,9 @@
  */
 
 require("dotenv/config");
+
+import { Algorithm } from "jsonwebtoken";
+
 const defined = <T>(t: T): t is Exclude<T, undefined | null> =>
   t !== undefined && t !== null;
 
@@ -140,6 +143,7 @@ export const CONFIG = {
     secretOrKey: JWT_SECRET_KEY,
     issuer: JWT_SECRET_ISSUER_AUDIENCE,
     audience: JWT_SECRET_ISSUER_AUDIENCE,
+    algorithm: "HS512" as Algorithm,
     expiration: "30d",
   },
 };
