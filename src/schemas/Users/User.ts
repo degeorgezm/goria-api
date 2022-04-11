@@ -9,7 +9,6 @@ import mongooseDeepPopulate from "mongoose-deep-populate";
 import { Document, MongoError } from "mongodb";
 
 import { CONFIG } from "./../../config";
-import { Address } from "../Addresses";
 
 // Declarations
 
@@ -47,6 +46,9 @@ interface IUser {
   image?: Schema.Types.ObjectId;
   billing_address?: Schema.Types.ObjectId;
   shipping_address?: Schema.Types.ObjectId;
+  validPassword(password): Promise<boolean>;
+  generateToken(): string;
+  admin(): boolean;
 }
 
 // 2. Create a Schema corresponding to the document interface.
@@ -138,7 +140,7 @@ UserSchema.methods.validPassword = async function (candidate) {
   return await compare(candidate, this.password);
 };
 
-UserSchema.methods.admin = async function () {
+UserSchema.methods.admin = function () {
   return this.role <= Roles.ADMIN;
 };
 
