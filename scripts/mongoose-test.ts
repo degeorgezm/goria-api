@@ -6,11 +6,13 @@ import { MONGODB_URL, MONGODB_DATABASE } from "../src/config";
 
 // 1. Create an interface representing a document in MongoDB.
 interface ITest {
+  _id: Schema.Types.ObjectId;
   test: String;
+  save(): ITest;
 }
 
 // 2. Create a Schema corresponding to the document interface.
-const testSchema = new Schema<ITest>({
+const testSchema = new Schema({
   test: { type: String, required: true },
 });
 

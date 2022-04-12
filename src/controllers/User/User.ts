@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
-import { BaseController } from "../../controllers";
+import { BaseController } from "../../controllers/BaseController";
 import { Roles } from "./../../schemas/Users/User";
 import { Address, User } from "./../../schemas";
 

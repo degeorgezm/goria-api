@@ -7,6 +7,7 @@ import { User } from "../Users";
 
 // 1. Create an interface representing a document in MongoDB.
 interface IAddress {
+  _id: Schema.Types.ObjectId;
   name: string;
   address1: string;
   address2?: string;
@@ -20,6 +21,7 @@ interface IAddress {
   user: Schema.Types.ObjectId;
   billing?: boolean;
   shipping?: boolean;
+  save(): IAddress | PromiseLike<IAddress>;
 }
 
 // 2. Create a Schema corresponding to the document interface.

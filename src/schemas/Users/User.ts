@@ -6,7 +6,7 @@ import mongoose, { Schema, model, NativeError } from "mongoose";
 import { sign } from "jsonwebtoken";
 import { genSalt, hash, compare } from "bcryptjs";
 import mongooseDeepPopulate from "mongoose-deep-populate";
-import { Document, MongoError } from "mongodb";
+import { Document } from "mongodb";
 
 import { JWT_PAYLOAD } from "../../authentication";
 
@@ -35,6 +35,7 @@ export enum Genders {
 
 // 1. Create an interface representing a document in MongoDB.
 interface IUser {
+  _id: Schema.Types.ObjectId;
   firstName: string;
   lastName: string;
   password: string;
@@ -51,6 +52,7 @@ interface IUser {
   validPassword(password): Promise<boolean>;
   generateToken(): string;
   admin(): boolean;
+  save(): IUser | PromiseLike<IUser>;
 }
 
 // 2. Create a Schema corresponding to the document interface.

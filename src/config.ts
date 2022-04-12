@@ -102,6 +102,7 @@ export const JWT_AUTH_HEADER = requireEnv("JWT_AUTH_HEADER");
 export const IAM_ACCESS_KEY_ID = requireEnv("IAM_ACCESS_KEY_ID");
 export const IAM_SECRET_ACCESS_KEY = requireEnv("IAM_SECRET_ACCESS_KEY");
 export const S3_BUCKET_NAME = requireEnv("S3_BUCKET_NAME");
+export const S3_BUCKET_REGION = requireEnv("S3_BUCKET_REGION", "us-east-2");
 export const S3_IMG_HANDLER_FOLDER = requireEnv("S3_IMG_HANDLER_FOLDER");
 export const S3_PDF_HANDLER_FOLDER = requireEnv("S3_PDF_HANDLER_FOLDER");
 
