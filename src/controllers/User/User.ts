@@ -23,7 +23,9 @@ export class UserController extends BaseController {
     if (req.body.twilio) validation.push("!twilio");
 
     if (validation.length != 0)
-      return res.status(400).send({ error: validation.toLocaleString() });
+      return res
+        .status(400)
+        .send({ error: { validation: validation.toLocaleString() } });
 
     try {
       const user = await User.create({
@@ -85,15 +87,13 @@ export class UserController extends BaseController {
     if (req.body.twilio) validation.push("!twilio");
 
     if (validation.length != 0)
-      return res.status(400).send({ error: validation.toLocaleString() });
+      return res
+        .status(400)
+        .send({ error: { validation: validation.toLocaleString() } });
 
     try {
       let user = await User.findById(id);
-
-      for (const record in req.body) {
-        user[record] = req.body[record];
-      }
-
+      for (const record in req.body) user[record] = req.body[record];
       user = await user.save();
       return res.status(200).send(user);
     } catch (error) {
@@ -112,7 +112,9 @@ export class UserController extends BaseController {
     if (!id) validation.push("param:id");
 
     if (validation.length != 0)
-      return res.status(400).send({ error: validation.toLocaleString() });
+      return res
+        .status(400)
+        .send({ error: { validation: validation.toLocaleString() } });
 
     try {
       await Address.deleteMany({

@@ -69,7 +69,9 @@ describe("Address Tests", () => {
 
     expect(res.statusCode).toEqual(400);
     expect(res.body).toEqual({
-      error: "name,address1,zip,city,state,country,phone,!user,!twilio",
+      error: {
+        validation: "name,address1,zip,city,state,country,phone,!user,!twilio",
+      },
     });
   });
 
@@ -125,7 +127,7 @@ describe("Address Tests", () => {
       });
 
     expect(res.statusCode).toEqual(400);
-    expect(res.body).toEqual({ error: "!user,!twilio,!_id" });
+    expect(res.body).toEqual({ error: { validation: "!user,!twilio,!_id" } });
   });
 
   test("5. address billing & shipping triggers perform correctly", async () => {

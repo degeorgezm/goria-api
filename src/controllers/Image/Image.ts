@@ -12,7 +12,7 @@ import { config, S3 } from "aws-sdk";
 
 import { BaseController } from "../../controllers/BaseController";
 import { ImageType } from "../../schemas/Images/Image";
-import { Image, User } from "../../schemas";
+import { Image, User, IImage } from "../../schemas";
 
 import {
   IAM_ACCESS_KEY_ID,
@@ -204,7 +204,7 @@ const createImage = async (req: Request, type: ImageType, done) => {
 
   image.filename = sliceFilename(req, req.file, type);
   if (req.body.alt) image.alt = req.body.alt;
-  image.objectId = req.params.id as unknown as ObjectId;
+  image.object_id = req.params.id as unknown as ObjectId;
   image.type = req.params.type as ImageType;
   image.key = req.file["key"];
 
@@ -287,7 +287,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        error: validation.toLocaleString(),
+        error: { validation: validation.toLocaleString() },
       });
 
     const functions = [];
@@ -313,7 +313,7 @@ class ImageController extends BaseController {
         break;
     }
 
-    waterfall(functions, function (err: WaterfallError, image: typeof Image) {
+    waterfall(functions, function (err: WaterfallError, image: IImage) {
       if (err) return res.status(err.status).send(err.body);
       return res.status(201).send(image);
     });
@@ -330,7 +330,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        error: validation.toLocaleString(),
+        error: { validation: validation.toLocaleString() },
       });
 
     try {
@@ -348,22 +348,44 @@ class ImageController extends BaseController {
 
     let validation = [];
     if (!id) validation.push("param:id");
+    if (req.body._id) validation.push("!_id");
+    if (req.body.filename) validation.push("!filename");
+    if (req.body.user) validation.push("!user");
+    if (req.body.variant) validation.push("!variant");
+    if (req.body.product) validation.push("!product");
+    if (req.body.key) validation.push("!key");
+    if (req.body.type) {
+      switch (req.body.type) {
+        case ImageType.PRODUCT:
+          if (req.body.variant) validation.push("!variant");
+          if (req.body.user) validation.push("!user");
+          if (!req.body.product) validation.push("+product");
+          break;
+        case ImageType.USER:
+          if (req.body.variant) validation.push("!variant");
+          if (!req.body.user) validation.push("+user");
+          if (req.body.product) validation.push("!product");
+          break;
+        case ImageType.VARIANT:
+          if (!req.body.variant) validation.push("+variant");
+          if (req.body.user) validation.push("!user");
+          if (req.body.product) validation.push("!product");
+          break;
+        default:
+          validation.push("invalid_type");
+      }
+    }
 
     if (validation.length != 0)
       return res.status(400).send({
-        error: validation.toLocaleString(),
+        error: { validation: validation.toLocaleString() },
       });
 
     try {
-      const response = await Image.updateOne(
-        {
-          _id: id,
-        },
-        {
-          ...req.body,
-        }
-      );
-      return res.status(200).send(response);
+      let image = await Image.findById(id);
+      for (const record in req.body) image[record] = req.body[record];
+      image = await image.save();
+      return res.status(200).send(image);
     } catch (err) {
       return res.status(500).send({ error: err });
     }
@@ -379,7 +401,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        error: validation.toLocaleString(),
+        error: { validation: validation.toLocaleString() },
       });
 
     try {
@@ -437,7 +459,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        error: validation.toLocaleString(),
+        error: { validation: validation.toLocaleString() },
       });
 
     try {

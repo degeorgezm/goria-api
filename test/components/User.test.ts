@@ -52,7 +52,9 @@ describe("User Tests", () => {
 
     expect(res.statusCode).toEqual(400);
     expect(res.body).toEqual({
-      error: "firstName,lastName,password,email,!username,!role,!twilio",
+      error: {
+        validation: "firstName,lastName,password,email,!username,!role,!twilio",
+      },
     });
   });
 
@@ -90,7 +92,7 @@ describe("User Tests", () => {
 
     expect(res.statusCode).toEqual(400);
     expect(res.body).toEqual({
-      error: "!_id,!username,!role,!twilio",
+      error: { validation: "!_id,!username,!role,!twilio" },
     });
 
     const new_name = user_body.firstName + "-updated";

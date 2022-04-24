@@ -2,9 +2,11 @@
 
 import { connect, disconnect } from "mongoose";
 import request from "supertest";
+import { readFileSync } from "node:fs";
+import { ObjectId } from "mongodb";
+
 import { app } from "../../src/server";
 import { Image, User } from "../../src/schemas";
-import { readFile, createReadStream, readFileSync } from "node:fs";
 
 const user_body = {
   firstName: "Munchkin",
@@ -30,7 +32,6 @@ describe("User Tests", () => {
   test("1. image create type='USER' route performs correctly", async () => {
     let user = new User(user_body);
     user = await user.save();
-
     expect(user._id).toBeDefined();
 
     let res = await request(app)
@@ -48,11 +49,76 @@ describe("User Tests", () => {
   });
 
   test("2. image create type='PRODUCT' route performs correctly", async () => {});
-  test("2. image read route performs correctly", async () => {});
+  test("3. image read route performs correctly", async () => {
+    const images = await Image.find();
+    expect(images.length).toBeGreaterThanOrEqual(1);
+    let image = images[0];
+    expect(image._id).toBeDefined();
 
-  test("3. image read all route performs correctly", async () => {});
+    let res = await request(app).get("/image/" + image._id);
 
-  test("4. image update route performs correctly", async () => {});
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeInstanceOf(Object);
+  });
 
-  test("5. image delete route performs correctly", async () => {});
+  test("4. image read all route performs correctly", async () => {
+    let res = await request(app).get("/image");
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeInstanceOf(Array);
+  });
+
+  test("5. image update route performs correctly", async () => {
+    const images = await Image.find();
+    expect(images.length).toBeGreaterThanOrEqual(1);
+    let image = images[0];
+    expect(image._id).toBeDefined();
+
+    let res = await request(app)
+      .put("/image/" + image._id)
+      .send({
+        type: "user",
+        _id: "foo",
+        filename: "foo",
+        key: "foo",
+        user: "foo",
+        product: "foo",
+        variant: "foo",
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({
+      error: {
+        validation:
+          "!_id,!filename,!user,!variant,!product,!key,!variant,!product",
+      },
+    });
+
+    const new_alt = image.alt ? image.alt + "-new" : "alt-new";
+    res = await request(app)
+      .put("/image/" + image._id)
+      .send({
+        alt: new_alt,
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.alt).toEqual(new_alt);
+  });
+
+  test("6. image delete route performs correctly", async () => {
+    let user = await User.findOne({ email: user_body.email });
+    expect(user._id).toBeDefined();
+    expect(user.image).toBeDefined();
+
+    const orig_id = user.image;
+    let res = await request(app).delete("/image/" + user.image);
+
+    expect(res.statusCode).toEqual(200);
+
+    user = await User.findOne({ email: user_body.email });
+    expect(user.image).toEqual(null);
+
+    let image = await Image.findById(orig_id);
+    expect(image).toEqual(null);
+  });
 });

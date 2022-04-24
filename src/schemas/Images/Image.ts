@@ -16,11 +16,13 @@ export interface IImage {
   filename: string;
   key: string;
   type: ImageType;
-  objectId: Schema.Types.ObjectId;
+  object_id: Schema.Types.ObjectId;
   user?: Schema.Types.ObjectId;
   product?: Schema.Types.ObjectId;
   variant: Schema.Types.ObjectId;
   alt?: string;
+  createdAt: string;
+  updatedAt: string;
   save(): IImage | PromiseLike<IImage>;
 }
 
@@ -31,7 +33,7 @@ const ImageSchema = new Schema(
     key: { type: String, required: true },
     alt: { type: String, required: false, default: "Image" },
     type: { type: String, required: true, enum: ImageType },
-    objectId: { type: Schema.Types.ObjectId, required: true },
+    object_id: { type: Schema.Types.ObjectId, required: true },
     user: { type: Schema.Types.ObjectId, ref: "User", required: false },
     product: { type: Schema.Types.ObjectId, ref: "Product", required: false },
     variant: { type: Schema.Types.ObjectId, ref: "Variant", required: false },
@@ -53,13 +55,13 @@ ImageSchema.pre(
   ) {
     switch (this.type) {
       case ImageType.USER:
-        this.user = this.objectId;
+        this.user = this.object_id;
         break;
       case ImageType.PRODUCT:
-        this.product = this.objectId;
+        this.product = this.object_id;
         break;
       case ImageType.VARIANT:
-        this.variant = this.objectId;
+        this.variant = this.object_id;
         break;
       default:
         break;
