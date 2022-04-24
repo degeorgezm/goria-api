@@ -287,7 +287,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        validation_error: validation.toLocaleString(),
+        error: validation.toLocaleString(),
       });
 
     const functions = [];
@@ -330,7 +330,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        validation_error: validation.toLocaleString(),
+        error: validation.toLocaleString(),
       });
 
     try {
@@ -351,7 +351,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        validation_error: validation.toLocaleString(),
+        error: validation.toLocaleString(),
       });
 
     try {
@@ -379,7 +379,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        validation_error: validation.toLocaleString(),
+        error: validation.toLocaleString(),
       });
 
     try {
@@ -437,7 +437,7 @@ class ImageController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        validation_error: validation.toLocaleString(),
+        error: validation.toLocaleString(),
       });
 
     try {

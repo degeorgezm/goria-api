@@ -61,8 +61,69 @@ describe("User Tests", () => {
 
     expect(res.statusCode).toEqual(400);
     expect(res.body).toEqual({
-      validation_error:
-        "firstName,lastName,password,email,!username,!role,!twilio",
+      error: "firstName,lastName,password,email,!username,!role,!twilio",
     });
+  });
+
+  test("2. user read route performs correctly", async () => {
+    const users = await User.find({ email: user1_body.email });
+    expect(users.length).toEqual(1);
+    const user = users[0];
+
+    let res = await request(app).get("/user/" + user._id);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeInstanceOf(Object);
+  });
+
+  test("3. user read all route performs correctly", async () => {
+    let res = await request(app).get("/user");
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeInstanceOf(Array);
+  });
+
+  test("4. user update route performs correctly", async () => {
+    const users = await User.find({ email: user1_body.email });
+    expect(users.length).toEqual(1);
+    const user = users[0];
+
+    let res = await request(app)
+      .put("/user/" + user._id)
+      .send({
+        _id: "foo",
+        twilio: "foo",
+        role: "foo",
+        username: "foo",
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({
+      error: "!_id,!username,!role,!twilio",
+    });
+
+    const new_name = user1_body.firstName + "-updated";
+
+    res = await request(app)
+      .put("/user/" + user._id)
+      .send({
+        firstName: new_name,
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.firstName).toEqual(new_name);
+  });
+
+  test("5. user delete route performs correctly", async () => {
+    let users = await User.find().where({ email: user1_body.email });
+    expect(users.length).toEqual(1);
+    let user = users[0];
+
+    let res = await request(app).delete("/user/" + user._id);
+
+    expect(res.statusCode).toEqual(200);
+
+    users = await User.find().where({ email: user1_body.email });
+    expect(users.length).toEqual(0);
   });
 });

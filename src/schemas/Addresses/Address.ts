@@ -56,42 +56,58 @@ AddressSchema.pre(
     next: (err?: NativeError) => void,
     data: any
   ) {
-    if (this.isModified("billing") && this.billing == true) {
-      await Address.updateMany(
-        {
-          user: this.user,
-        },
-        {
-          billing: false,
+    if (this.isModified("billing")) {
+      if (this.billing == true) {
+        await Address.updateMany(
+          {
+            user: this.user,
+          },
+          {
+            billing: false,
+          }
+        );
+        await User.updateOne(
+          {
+            _id: this.user,
+          },
+          {
+            billing_address: this._id,
+          }
+        );
+      } else {
+        const user = await User.findById(this.user);
+        if (String(user.billing_address) === String(this._id)) {
+          user.billing_address = null;
+          await this.user.save();
         }
-      );
-      await User.updateOne(
-        {
-          _id: this.user,
-        },
-        {
-          billing_address: this._id,
-        }
-      );
+      }
     }
 
-    if (this.isModified("shipping") && this.shipping == true) {
-      await Address.updateMany(
-        {
-          user: this.user,
-        },
-        {
-          shipping: false,
+    if (this.isModified("shipping")) {
+      if (this.shipping == true) {
+        await Address.updateMany(
+          {
+            user: this.user,
+          },
+          {
+            shipping: false,
+          }
+        );
+        await User.updateOne(
+          {
+            _id: this.user,
+          },
+          {
+            shipping_address: this._id,
+          }
+        );
+      } else {
+        const user = await User.findById(this.user);
+        if (String(user.shipping_address) === String(this._id)) {
+          user.shipping_address = null;
+          await this.user.save();
         }
-      );
-      await User.updateOne(
-        {
-          _id: this.user,
-        },
-        {
-          shipping_address: this._id,
-        }
-      );
+      }
     }
 
     if (this.isModified("phone")) {

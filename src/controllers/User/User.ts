@@ -23,9 +23,7 @@ export class UserController extends BaseController {
     if (req.body.twilio) validation.push("!twilio");
 
     if (validation.length != 0)
-      return res
-        .status(400)
-        .send({ validation_error: validation.toLocaleString() });
+      return res.status(400).send({ error: validation.toLocaleString() });
 
     try {
       const user = await User.create({
@@ -45,7 +43,7 @@ export class UserController extends BaseController {
   ) {
     const id = req?.params?.id;
 
-    if (!id) return res.status(400).send({ validation_error: "id not found." });
+    if (!id) return res.status(400).send({ error: "id not found." });
 
     try {
       const user = await User.findOne({
@@ -81,14 +79,13 @@ export class UserController extends BaseController {
 
     let validation = [];
     if (!id) validation.push("param:id");
+    if (req.body._id) validation.push("!_id");
     if (req.body.username) validation.push("!username");
     if (req.body.role) validation.push("!role");
-    if (req.body.id) validation.push("!id9");
+    if (req.body.twilio) validation.push("!twilio");
 
     if (validation.length != 0)
-      return res
-        .status(400)
-        .send({ validation_error: validation.toLocaleString() });
+      return res.status(400).send({ error: validation.toLocaleString() });
 
     try {
       let user = await User.findById(id);
@@ -115,9 +112,7 @@ export class UserController extends BaseController {
     if (!id) validation.push("param:id");
 
     if (validation.length != 0)
-      return res
-        .status(400)
-        .send({ validation_error: validation.toLocaleString() });
+      return res.status(400).send({ error: validation.toLocaleString() });
 
     try {
       await Address.deleteMany({

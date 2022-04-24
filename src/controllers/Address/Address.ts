@@ -29,7 +29,7 @@ export class AddressController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        validation_error: validation.toLocaleString(),
+        error: validation.toLocaleString(),
       });
 
     try {
@@ -53,9 +53,7 @@ export class AddressController extends BaseController {
     if (!id) validation.push("param:id");
 
     if (validation.length != 0)
-      return res
-        .status(400)
-        .send({ validation_error: validation.toLocaleString() });
+      return res.status(400).send({ error: validation.toLocaleString() });
 
     try {
       const address = await Address.findOne({
@@ -93,7 +91,7 @@ export class AddressController extends BaseController {
 
     if (validation.length != 0)
       return res.status(400).send({
-        validation_error: validation.toLocaleString(),
+        error: validation.toLocaleString(),
       });
 
     try {
@@ -121,9 +119,7 @@ export class AddressController extends BaseController {
     if (!id) validation.push("param:id");
 
     if (validation.length != 0)
-      return res
-        .status(400)
-        .send({ validation_error: validation.toLocaleString() });
+      return res.status(400).send({ error: validation.toLocaleString() });
 
     try {
       const address = await Address.findById(id);
