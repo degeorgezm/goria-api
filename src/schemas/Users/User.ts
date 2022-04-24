@@ -34,7 +34,7 @@ export enum Genders {
 }
 
 // 1. Create an interface representing a document in MongoDB.
-interface IUser {
+export interface IUser {
   _id: Schema.Types.ObjectId;
   firstName: string;
   lastName: string;
@@ -103,7 +103,7 @@ UserSchema.pre(
 
     if (this.isModified("phone")) {
       let twilio = this.phone.replace(/\D/g, "");
-      if (twilio.charAt(0) != "1") twilio = "1" + twilio;
+      if (twilio.length == 10) twilio = "1" + twilio;
       this.twilio = twilio;
     }
 

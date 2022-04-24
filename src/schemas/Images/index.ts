@@ -1,3 +1,3 @@
 /** @format */
 
-export { Image } from "./Image";
+export { Image, IImage } from "./Image";

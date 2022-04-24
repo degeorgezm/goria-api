@@ -6,7 +6,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../../controllers/BaseController";
-import { Address } from "./../../schemas";
+import { Address, User } from "./../../schemas";
 
 export class AddressController extends BaseController {
   public async create(
@@ -18,8 +18,8 @@ export class AddressController extends BaseController {
     let validation = [];
     if (!user_id) validation.push("param:user_id");
     if (!req.body.name) validation.push("name");
-    if (!req.body.address1) validation.push(" address1");
-    if (!req.body.zip) validation.push(" zip");
+    if (!req.body.address1) validation.push("address1");
+    if (!req.body.zip) validation.push("zip");
     if (!req.body.city) validation.push("city");
     if (!req.body.state) validation.push("state");
     if (!req.body.country) validation.push("country");
@@ -126,6 +126,30 @@ export class AddressController extends BaseController {
         .send({ validation_error: validation.toLocaleString() });
 
     try {
+      const address = await Address.findById(id);
+
+      if (!address) {
+        return res.status(404).send({ error: "Address not found." });
+      }
+
+      const user = await User.findById(address.user);
+
+      let user_updated = false;
+      if (String(user.billing_address) == id) {
+        user.billing_address = null;
+        user_updated = true;
+      }
+      if (String(user.shipping_address) == id) {
+        user.shipping_address = null;
+        user_updated = true;
+      }
+
+      if (user_updated) {
+        console.log("Updating user");
+        console.log(user);
+        await user.save();
+      }
+
       const response = await Address.deleteOne({
         _id: id,
       });

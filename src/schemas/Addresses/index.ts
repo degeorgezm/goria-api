@@ -1,3 +1,3 @@
 /** @format */
 
-export { Address } from "./Address";
+export { Address, IAddress } from "./Address";

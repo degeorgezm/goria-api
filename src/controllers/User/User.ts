@@ -20,6 +20,7 @@ export class UserController extends BaseController {
     if (!req.body.email) validation.push("email");
     if (req.body.username) validation.push("!username");
     if (req.body.role) validation.push("!role");
+    if (req.body.twilio) validation.push("!twilio");
 
     if (validation.length != 0)
       return res
@@ -82,6 +83,7 @@ export class UserController extends BaseController {
     if (!id) validation.push("param:id");
     if (req.body.username) validation.push("!username");
     if (req.body.role) validation.push("!role");
+    if (req.body.id) validation.push("!id9");
 
     if (validation.length != 0)
       return res

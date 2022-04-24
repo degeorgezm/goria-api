@@ -1,5 +1,5 @@
 /** @format */
 
-export { User } from "./Users";
-export { Address } from "./Addresses";
-export { Image } from "./Images";
+export { User, IUser } from "./Users";
+export { Address, IAddress } from "./Addresses";
+export { Image, IImage } from "./Images";

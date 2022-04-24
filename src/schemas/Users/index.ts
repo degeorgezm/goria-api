@@ -1,3 +1,3 @@
 /** @format */
 
-export { User } from "./User";
+export { User, IUser } from "./User";

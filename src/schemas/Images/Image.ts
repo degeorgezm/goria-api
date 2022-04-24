@@ -11,7 +11,7 @@ export enum ImageType {
 }
 
 // 1. Create an interface representing a document in MongoDB.
-interface IImage {
+export interface IImage {
   _id: Schema.Types.ObjectId;
   filename: string;
   key: string;
