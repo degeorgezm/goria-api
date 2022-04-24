@@ -89,15 +89,14 @@ export class UserController extends BaseController {
         .send({ validation_error: validation.toLocaleString() });
 
     try {
-      const response = await User.updateOne(
-        {
-          _id: id,
-        },
-        {
-          ...req.body,
-        }
-      );
-      return res.status(200).send(response);
+      let user = await User.findById(id);
+
+      for (const record in req.body) {
+        user[record] = req.body[record];
+      }
+
+      user = await user.save();
+      return res.status(200).send(user);
     } catch (error) {
       console.error(error);
       return res.status(400).send(error);

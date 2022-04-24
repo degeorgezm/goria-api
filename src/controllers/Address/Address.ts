@@ -1,5 +1,6 @@
 /** @format */
 
+import { forEach } from "async";
 import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
@@ -88,6 +89,7 @@ export class AddressController extends BaseController {
     if (!id) validation.push("param:id");
     if (req.body.user) validation.push("!user");
     if (req.body.twilio) validation.push("!twilio");
+    if (req.body._id) validation.push("!_id");
 
     if (validation.length != 0)
       return res.status(400).send({
@@ -95,13 +97,14 @@ export class AddressController extends BaseController {
       });
 
     try {
-      const response = await Address.updateOne(
-        {
-          _id: id,
-        },
-        req.body
-      );
-      return res.status(200).send(response);
+      let address = await Address.findById(id);
+
+      for (const record in req.body) {
+        address[record] = req.body[record];
+      }
+
+      address = await address.save();
+      return res.status(200).send(address);
     } catch (error) {
       console.error(error);
       return res.status(400).send(error);
