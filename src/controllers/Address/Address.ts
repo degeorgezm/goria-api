@@ -32,10 +32,10 @@ export class AddressController extends BaseController {
       });
 
     try {
-      const address = await Address.create({
+      const address = await new Address({
         ...req.body,
         user: user_id,
-      });
+      }).save();
       return res.status(201).send(address);
     } catch (error) {
       console.error(error);

@@ -18,8 +18,9 @@ import { set_authorization_strategy, authRouter } from "./authentication";
 import { userRouter, addressRouter, imageRouter } from "./routes";
 
 import { PORT, LOGGING_ENABLED, VERSION } from "./config";
+import { Server } from "http";
 
-const app = express();
+export const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -53,10 +54,10 @@ app.use("/image", imageRouter);
 
 set_authorization_strategy(app);
 
-// app.init();
+export let server: Server;
 
 export const start = async () => {
-  app.listen(PORT, () => {
+  server = await app.listen(PORT, () => {
     console.error(`Server is listening at http://localhost:${PORT}`);
   });
 };
