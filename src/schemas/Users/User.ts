@@ -146,4 +146,4 @@ UserSchema.methods.admin = function () {
 };
 
 // 3. Create a Model.
-export const User = model<IUser>("User", UserSchema);
+export let User = model<IUser>("User", UserSchema);

@@ -1,7 +1,6 @@
 /** @format */
 import { connect, disconnect } from "mongoose";
 import request from "supertest";
-import { createServer, Server } from "http";
 
 import { User, Address } from "../../src/schemas";
 import { Roles } from "../../src/schemas/Users/User";

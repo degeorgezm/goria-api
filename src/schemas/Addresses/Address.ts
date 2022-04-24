@@ -129,4 +129,4 @@ AddressSchema.post("deleteMany", async function (reponse) {
 });
 
 // 3. Create a Model.
-export const Address = model<IAddress>("Address", AddressSchema);
+export let Address = model<IAddress>("Address", AddressSchema);

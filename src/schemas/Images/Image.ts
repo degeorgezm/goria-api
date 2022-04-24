@@ -74,4 +74,4 @@ ImageSchema.post("deleteOne", async function (reponse) {
 });
 
 // 3. Create a Model.
-export const Image = model<IImage>("Image", ImageSchema);
+export let Image = model<IImage>("Image", ImageSchema);

@@ -1,7 +1,6 @@
 /** @format */
 
 import express, { Request, Response } from "express";
-import multer from "multer";
 
 import { imageController } from "../../controllers";
 

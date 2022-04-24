@@ -9,4 +9,5 @@ module.exports = {
   verbose: true,
   globalSetup: "./node_modules/@shelf/jest-mongodb/setup.js",
   globalTeardown: "./node_modules/@shelf/jest-mongodb/teardown.js",
+  transformIgnorePatterns: ["/node_modules/"],
 };
