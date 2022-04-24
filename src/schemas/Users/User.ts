@@ -103,7 +103,7 @@ UserSchema.pre(
 
     if (this.isModified("phone")) {
       let twilio = this.phone.replace(/\D/g, "");
-      if (twilio.length == 10) twilio = "1" + twilio;
+      if (twilio.length === 10) twilio = "1" + twilio;
       this.twilio = twilio;
     }
 
@@ -116,9 +116,7 @@ UserSchema.pre(
   }
 );
 
-UserSchema.post("deleteOne", async function (reponse) {
-  console.log("User Deleted: ", reponse);
-});
+// UserSchema.post("deleteOne", async (reponse) => {});
 
 UserSchema.methods.generateToken = function (): string {
   const payload: JWT_PAYLOAD = {

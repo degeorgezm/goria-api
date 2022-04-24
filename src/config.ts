@@ -12,6 +12,7 @@
  *
  */
 
+/* tslint:disable-next-line  no-var-requires error*/
 require("dotenv/config");
 
 import { Algorithm } from "jsonwebtoken";

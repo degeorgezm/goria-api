@@ -26,10 +26,8 @@ import { MONGODB_URL } from "./config";
 export const connect = async (): Promise<boolean> => {
   try {
     await mongoose_connect(MONGODB_URL);
-    console.info("Database connected");
     return true;
   } catch (error) {
-    console.error("Error connecting to database: ", error);
     return false;
   }
 };

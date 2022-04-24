@@ -13,7 +13,7 @@ export class UserController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    let validation = [];
+    const validation = [];
     if (!req.body.firstName) validation.push("firstName");
     if (!req.body.lastName) validation.push("lastName");
     if (!req.body.password) validation.push("password");
@@ -22,7 +22,7 @@ export class UserController extends BaseController {
     if (req.body.role) validation.push("!role");
     if (req.body.twilio) validation.push("!twilio");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res
         .status(400)
         .send({ error: { validation: validation.toLocaleString() } });
@@ -35,7 +35,6 @@ export class UserController extends BaseController {
       });
       return res.status(201).send(user);
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }
@@ -54,7 +53,6 @@ export class UserController extends BaseController {
       if (user) user.password = "********";
       return user ? res.status(200).send(user) : res.status(404).send({});
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }
@@ -69,7 +67,6 @@ export class UserController extends BaseController {
       users.map((user) => (user.password = "********"));
       return res.status(200).send(users);
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }
@@ -79,14 +76,14 @@ export class UserController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    let validation = [];
+    const validation = [];
     if (!id) validation.push("param:id");
     if (req.body._id) validation.push("!_id");
     if (req.body.username) validation.push("!username");
     if (req.body.role) validation.push("!role");
     if (req.body.twilio) validation.push("!twilio");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res
         .status(400)
         .send({ error: { validation: validation.toLocaleString() } });
@@ -97,7 +94,6 @@ export class UserController extends BaseController {
       user = await user.save();
       return res.status(200).send(user);
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }
@@ -107,11 +103,11 @@ export class UserController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    let validation = [];
+    const validation = [];
 
     if (!id) validation.push("param:id");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res
         .status(400)
         .send({ error: { validation: validation.toLocaleString() } });
@@ -125,7 +121,6 @@ export class UserController extends BaseController {
       });
       return res.status(200).send(response);
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }

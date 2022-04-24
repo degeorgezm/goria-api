@@ -57,7 +57,7 @@ AddressSchema.pre(
     data: any
   ) {
     if (this.isModified("billing")) {
-      if (this.billing == true) {
+      if (this.billing === true) {
         await Address.updateMany(
           {
             user: this.user,
@@ -84,7 +84,7 @@ AddressSchema.pre(
     }
 
     if (this.isModified("shipping")) {
-      if (this.shipping == true) {
+      if (this.shipping === true) {
         await Address.updateMany(
           {
             user: this.user,
@@ -112,7 +112,7 @@ AddressSchema.pre(
 
     if (this.isModified("phone")) {
       let twilio = this.phone.replace(/\D/g, "");
-      if (twilio.length == 10) twilio = "1" + twilio;
+      if (twilio.length === 10) twilio = "1" + twilio;
       this.twilio = twilio;
     }
 
@@ -120,13 +120,9 @@ AddressSchema.pre(
   }
 );
 
-AddressSchema.post("deleteOne", async function (reponse) {
-  console.log("Address Deleted: ", reponse);
-});
+// AddressSchema.post("deleteOne", async (reponse) => {});
 
-AddressSchema.post("deleteMany", async function (reponse) {
-  console.log("Addresses Deleted: ", reponse);
-});
+// AddressSchema.post("deleteMany", async (reponse) => {});
 
 // 3. Create a Model.
 export let Address = model<IAddress>("Address", AddressSchema);

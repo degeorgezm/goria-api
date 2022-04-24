@@ -14,7 +14,7 @@
 
 import express from "express";
 
-import { set_authorization_strategy, authRouter } from "./authentication";
+import { setAuthorizationStrategy, authRouter } from "./authentication";
 import { userRouter, addressRouter, imageRouter } from "./routes";
 
 import { PORT, LOGGING_ENABLED, VERSION } from "./config";
@@ -25,10 +25,12 @@ export const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   if (LOGGING_ENABLED) {
+    /* tslint:disable-next-line no-console error */
     console.info(Date() + "\t\t" + req.method + " " + req.url);
-    if (req.method == "POST" || req.method == "PUT") {
+    if (req.method === "POST" || req.method === "PUT") {
+      /* tslint:disable-next-line no-console error */
       console.info(req.body);
     }
   }
@@ -36,8 +38,8 @@ app.use(function (req, res, next) {
   return next();
 });
 
-app.get("/", function (req, res) {
-  var response = {
+app.get("/", (req, res) => {
+  const response = {
     status: "OK",
     environment: process.env.NODE_ENV,
     version: VERSION,
@@ -52,12 +54,13 @@ app.use("/address", addressRouter);
 app.use("/authenticate", authRouter);
 app.use("/image", imageRouter);
 
-set_authorization_strategy(app);
+setAuthorizationStrategy(app);
 
 export let server: Server;
 
 export const start = async () => {
   server = await app.listen(PORT, () => {
-    console.error(`Server is listening at http://localhost:${PORT}`);
+    /* tslint:disable-next-line no-console error */
+    console.info(`Server is listening at http://localhost:${PORT}`);
   });
 };

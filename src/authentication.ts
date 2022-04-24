@@ -29,7 +29,7 @@ export type JWT_PAYLOAD = {
   admin: boolean;
 };
 
-export const set_authorization_strategy = (app) => {
+export const setAuthorizationStrategy = (app) => {
   // Define Passport strategy for authenticating with a username and password.
   app.use(passport.initialize());
 
@@ -37,9 +37,9 @@ export const set_authorization_strategy = (app) => {
   // The strategy requires a verify callback, which accepts these credentials and calls done providing a user.
   // https://github.com/jaredhanson/passport-local
   passport.use(
-    new LocalStrategy(async function (username, password, done) {
+    new LocalStrategy(async (username, password, done) => {
       try {
-        const user = await User.findOne({ username: username });
+        const user = await User.findOne({ username });
         if (!user) return done("User not found", null);
 
         if (await !user.validPassword(password)) {
@@ -48,7 +48,6 @@ export const set_authorization_strategy = (app) => {
           return done(null, user);
         }
       } catch (error) {
-        console.error(error);
         return done(error, null);
       }
     })
@@ -65,35 +64,19 @@ export const set_authorization_strategy = (app) => {
   // It is intended to be used to secure RESTful endpoints without sessions.
   // https://github.com/themikenicholson/passport-jwt
   passport.use(
-    new JwtStrategy(JWT_STRATEGY_CONFIG, async function (
-      jwt_payload: JWT_PAYLOAD,
-      done
-    ) {
-      try {
-        const user = await User.findOne({ _id: jwt_payload.user_id });
-        return done(null, user);
-      } catch (error) {
-        console.error(error);
-        return done(error, null);
+    new JwtStrategy(
+      JWT_STRATEGY_CONFIG,
+      async (jwtPayload: JWT_PAYLOAD, done) => {
+        try {
+          const user = await User.findOne({ _id: jwtPayload.user_id });
+          return done(null, user);
+        } catch (error) {
+          return done(error, null);
+        }
       }
-    })
+    )
   );
 };
-
-/*
-
- $$$$$$\              $$\     $$\             $$$$$$$$\                                      
-$$  __$$\             $$ |    $$ |            \__$$  __|                                     
-$$ /  $$ |$$\   $$\ $$$$$$\   $$$$$$$\           $$ |$$\   $$\  $$$$$$\   $$$$$$\   $$$$$$$\ 
-$$$$$$$$ |$$ |  $$ |\_$$  _|  $$  __$$\          $$ |$$ |  $$ |$$  __$$\ $$  __$$\ $$  _____|
-$$  __$$ |$$ |  $$ |  $$ |    $$ |  $$ |         $$ |$$ |  $$ |$$ /  $$ |$$$$$$$$ |\$$$$$$\  
-$$ |  $$ |$$ |  $$ |  $$ |$$\ $$ |  $$ |         $$ |$$ |  $$ |$$ |  $$ |$$   ____| \____$$\ 
-$$ |  $$ |\$$$$$$  |  \$$$$  |$$ |  $$ |         $$ |\$$$$$$$ |$$$$$$$  |\$$$$$$$\ $$$$$$$  |
-\__|  \__| \______/    \____/ \__|  \__|         \__| \____$$ |$$  ____/  \_______|\_______/ 
-                                                     $$\   $$ |$$ |                          
-                                                     \$$$$$$  |$$ |                          
-                                                      \______/ \__|                          
-*/
 
 export const auth = {
   NONE: undefined,
@@ -102,24 +85,18 @@ export const auth = {
 };
 
 // No Authentication required (for endpoints that need to be accessible to guests, such as registration)
-auth.NONE = function (req, res, next) {
+auth.NONE = (req, res, next) => {
   return next();
 };
 
 // Basic Authentication strategy is used to verify username and password for an Admin, and set the JWT Token
 // which is passed to the /controllers/administrators/authenticate function
-auth.BASIC = function (req, res, next) {
-  passport.authenticate("local", function (err, user, info) {
-    if (err) {
-      console.error("Basic auth error: ", err);
-      return next(err);
-    }
-    if (!user) {
-      console.error("Basic auth failed: no user returned");
-      return res.status(401).send({});
-    }
+auth.BASIC = (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.status(401).send({});
 
-    var token = user.generateToken();
+    const token = user.generateToken();
     req.token = token;
     req.user = user;
 
@@ -128,13 +105,11 @@ auth.BASIC = function (req, res, next) {
 };
 
 // Verify the JWT is valid and set the user role before executing the rest of the route
-auth.TOKEN = function (req, res, next) {
+auth.TOKEN = (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user) => {
     if (err) {
-      console.error("Token auth failed: ", err);
       return next(err);
     } else if (!user) {
-      console.log("Token auth failed: no user returned");
       return res.status(400).send({});
     } else {
       req.user = user;
@@ -143,19 +118,6 @@ auth.TOKEN = function (req, res, next) {
   })(req, res, next);
 };
 
-/*
-
-$$$$$$$\            $$\                     
-$$  __$$\           $$ |                    
-$$ |  $$ | $$$$$$\  $$ | $$$$$$\   $$$$$$$\ 
-$$$$$$$  |$$  __$$\ $$ |$$  __$$\ $$  _____|
-$$  __$$< $$ /  $$ |$$ |$$$$$$$$ |\$$$$$$\  
-$$ |  $$ |$$ |  $$ |$$ |$$   ____| \____$$\ 
-$$ |  $$ |\$$$$$$  |$$ |\$$$$$$$\ $$$$$$$  |
-\__|  \__| \______/ \__| \_______|\_______/ 
-
-*/
-
 export const roles = {
   NONE: undefined,
   USER: undefined,
@@ -163,35 +125,29 @@ export const roles = {
 };
 
 // No Special Role is required - used for API calls that require no validation
-roles.NONE = function (req, res, next) {
+roles.NONE = (req, res, next) => {
   return next();
 };
 
 // Anyone who is logged in
-roles.USER = function (req, res, next) {
-  if (req.user) {
-    return next();
-  } else {
-    return res.status(401).send({});
-  }
+roles.USER = (req, res, next) => {
+  if (req.user) return next();
+  return res.status(401).send({ error: "unauthorized" });
 };
 
 // Admins
-roles.ADMIN = function (req, res, next) {
-  if (req.user.admin()) {
-    return next();
-  } else {
-    return res.status(401).send({});
-  }
+roles.ADMIN = (req, res, next) => {
+  if (req.user.admin()) return next();
+  return res.status(401).send({ error: "unauthorized" });
 };
 
 // Controller Functions
 
-export const authenticate = function (req, res) {
+export const authenticate = (req, res) => {
   res.status(200).set(JWT_AUTH_HEADER, req.token).send(req.user);
 };
 
-export const verifyToken = function (req, res) {
+export const verifyToken = (req, res) => {
   const user = req.user;
   if (user)
     return res.status(200).send({

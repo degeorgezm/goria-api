@@ -22,25 +22,13 @@ import {
   S3_BUCKET_REGION,
   CONFIG,
 } from "../../config";
-/*
-
-$$$$$$$\             $$$$$$\  $$\           $$\   $$\     $$\                               
-$$  __$$\           $$  __$$\ \__|          \__|  $$ |    \__|                              
-$$ |  $$ | $$$$$$\  $$ /  \__|$$\ $$$$$$$\  $$\ $$$$$$\   $$\  $$$$$$\  $$$$$$$\   $$$$$$$\ 
-$$ |  $$ |$$  __$$\ $$$$\     $$ |$$  __$$\ $$ |\_$$  _|  $$ |$$  __$$\ $$  __$$\ $$  _____|
-$$ |  $$ |$$$$$$$$ |$$  _|    $$ |$$ |  $$ |$$ |  $$ |    $$ |$$ /  $$ |$$ |  $$ |\$$$$$$\  
-$$ |  $$ |$$   ____|$$ |      $$ |$$ |  $$ |$$ |  $$ |$$\ $$ |$$ |  $$ |$$ |  $$ | \____$$\ 
-$$$$$$$  |\$$$$$$$\ $$ |      $$ |$$ |  $$ |$$ |  \$$$$  |$$ |\$$$$$$  |$$ |  $$ |$$$$$$$  |
-\_______/  \_______|\__|      \__|\__|  \__|\__|   \____/ \__| \______/ \__|  \__|\_______/ 
-                                                                                                                                                                              
-*/
 
 // Define the filetype for Picture Upload
-const file_filter_picture = (req, file, cb) => {
+const fileFilterPicture = (req, file, cb) => {
   if (
-    file.mimetype == "image/jpeg" ||
-    file.mimetype == "image/jpg" ||
-    file.mimetype == "image/png"
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/png"
   ) {
     cb(null, true);
   } else {
@@ -61,10 +49,10 @@ const s3 = new S3({
 
 const uploadS3User = multer({
   storage: multerS3({
-    s3: s3,
+    s3,
     bucket: S3_BUCKET_NAME,
     contentType: multerS3.AUTO_CONTENT_TYPE,
-    key: function (req: Request, file, cb) {
+    key: (req: Request, file, cb) => {
       cb(
         null,
         `${S3_IMG_HANDLER_FOLDER}/user/${req.params.id}/${
@@ -73,7 +61,7 @@ const uploadS3User = multer({
       );
     },
   }),
-  fileFilter: file_filter_picture,
+  fileFilter: fileFilterPicture,
   limits: {
     fileSize: CONFIG.server.max_file_size,
   },
@@ -81,10 +69,10 @@ const uploadS3User = multer({
 
 const uploadS3Product = multer({
   storage: multerS3({
-    s3: s3,
+    s3,
     bucket: S3_BUCKET_NAME,
     contentType: multerS3.AUTO_CONTENT_TYPE,
-    key: function (req: Request, file, cb) {
+    key: (req: Request, file, cb) => {
       cb(
         null,
         `${S3_IMG_HANDLER_FOLDER}/product/${req.params.id}/${
@@ -93,7 +81,7 @@ const uploadS3Product = multer({
       );
     },
   }),
-  fileFilter: file_filter_picture,
+  fileFilter: fileFilterPicture,
   limits: {
     fileSize: CONFIG.server.max_file_size,
   },
@@ -101,10 +89,10 @@ const uploadS3Product = multer({
 
 // const uploadS3Variant = multer({
 //   storage: multerS3({
-//     s3: s3,
+//     s3,
 //     bucket: S3_BUCKET_NAME,
 //     contentType: multerS3.AUTO_CONTENT_TYPE,
-//     key: function (req: Request, file, cb) {
+//     key: (req: Request, file, cb) => {
 //       cb(
 //         null,
 //         `${S3_IMG_HANDLER_FOLDER}/variant/${req.params.id}/${
@@ -113,7 +101,7 @@ const uploadS3Product = multer({
 //       );
 //     },
 //   }),
-//   fileFilter: file_filter_picture,
+//   fileFilter: fileFilterPicture,
 //   limits: {
 //     fileSize: CONFIG.server.max_file_size,
 //   },
@@ -121,8 +109,8 @@ const uploadS3Product = multer({
 
 // Remove Folder from Filename
 const sliceFilename = (req: Request, file, type: ImageType): string => {
-  var X = file.key;
-  var Y = `${S3_IMG_HANDLER_FOLDER}/${type}/${req.params.id}/`;
+  const X = file.key;
+  const Y = `${S3_IMG_HANDLER_FOLDER}/${type}/${req.params.id}/`;
   return X.slice(X.indexOf(Y) + Y.length);
 };
 
@@ -133,28 +121,13 @@ interface WaterfallError {
 
 const waterfallError = (status: number, err: any): WaterfallError => {
   return {
-    status: status,
+    status,
     body: { error: err },
   };
 };
 
-/*
-
-$$\   $$\           $$\                                         
-$$ |  $$ |          $$ |                                        
-$$ |  $$ | $$$$$$\  $$ | $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$$\ 
-$$$$$$$$ |$$  __$$\ $$ |$$  __$$\ $$  __$$\ $$  __$$\ $$  _____|
-$$  __$$ |$$$$$$$$ |$$ |$$ /  $$ |$$$$$$$$ |$$ |  \__|\$$$$$$\  
-$$ |  $$ |$$   ____|$$ |$$ |  $$ |$$   ____|$$ |       \____$$\ 
-$$ |  $$ |\$$$$$$$\ $$ |$$$$$$$  |\$$$$$$$\ $$ |      $$$$$$$  |
-\__|  \__| \_______|\__|$$  ____/  \_______|\__|      \_______/ 
-                        $$ |                                    
-                        $$ |                                    
-                        \__|     
-*/
-
 const uploadImageS3User = (req, res, done) => {
-  uploadS3User.single("image")(req, res, function (err) {
+  uploadS3User.single("image")(req, res, (err) => {
     if (err) {
       return done(waterfallError(500, err));
     } else if (!req.file.key) {
@@ -168,7 +141,7 @@ const uploadImageS3User = (req, res, done) => {
 };
 
 const uploadImageS3Product = (req, res, done) => {
-  uploadS3Product.single("image")(req, res, function (err) {
+  uploadS3Product.single("image")(req, res, (err) => {
     if (err) {
       return done(waterfallError(500, err));
     } else if (!req.filename) {
@@ -200,12 +173,13 @@ const uploadImageS3Product = (req, res, done) => {
 // };
 
 const createImage = async (req: Request, type: ImageType, done) => {
-  var image = new Image();
+  let image = new Image();
 
   image.filename = sliceFilename(req, req.file, type);
   if (req.body.alt) image.alt = req.body.alt;
   image.object_id = req.params.id as unknown as ObjectId;
   image.type = req.params.type as ImageType;
+  /* tslint:disable-next-line no-string-literal error */
   image.key = req.file["key"];
 
   try {
@@ -245,33 +219,16 @@ const s3ImageParams = (image): S3ImageParams => {
 const deletePreviousUserImage = async (req, res, done) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return waterfallError(404, "User not found.");
+    if (!user) return waterfallError(404, "user not found");
     if (user.image) {
       const image = await Image.findById(user.image);
-      if (!image) {
-      } else {
-        console.log("Deleting previous user image: key:: ", image.key);
-        await s3.deleteObject(s3ImageParams(image)).promise();
-      }
+      if (image) await s3.deleteObject(s3ImageParams(image)).promise();
     }
     return done(null, req, res);
   } catch (err) {
     return waterfallError(500, err);
   }
 };
-
-/*
-
- $$$$$$\  $$$$$$$\ $$$$$$\       $$$$$$$$\                  
-$$  __$$\ $$  __$$\\_$$  _|      $$  _____|                 
-$$ /  $$ |$$ |  $$ | $$ |        $$ |   $$$$$$$\   $$$$$$$\ 
-$$$$$$$$ |$$$$$$$  | $$ |        $$$$$\ $$  __$$\ $$  _____|
-$$  __$$ |$$  ____/  $$ |        $$  __|$$ |  $$ |\$$$$$$\  
-$$ |  $$ |$$ |       $$ |        $$ |   $$ |  $$ | \____$$\ 
-$$ |  $$ |$$ |     $$$$$$\       $$ |   $$ |  $$ |$$$$$$$  |
-\__|  \__|\__|     \______|      \__|   \__|  \__|\_______/ 
-                                                            
-*/
 
 class ImageController extends BaseController {
   public async create(
@@ -281,11 +238,11 @@ class ImageController extends BaseController {
     const id = req.params?.id;
     const type = req.params?.type;
 
-    let validation = [];
+    const validation = [];
     if (!id) validation.push("param:id");
     if (!type) validation.push("type");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res.status(400).send({
         error: { validation: validation.toLocaleString() },
       });
@@ -313,7 +270,7 @@ class ImageController extends BaseController {
         break;
     }
 
-    waterfall(functions, function (err: WaterfallError, image: IImage) {
+    waterfall(functions, (err: WaterfallError, image: IImage) => {
       if (err) return res.status(err.status).send(err.body);
       return res.status(201).send(image);
     });
@@ -325,10 +282,10 @@ class ImageController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    let validation = [];
+    const validation = [];
     if (!id) validation.push("param:id");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res.status(400).send({
         error: { validation: validation.toLocaleString() },
       });
@@ -346,7 +303,7 @@ class ImageController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    let validation = [];
+    const validation = [];
     if (!id) validation.push("param:id");
     if (req.body._id) validation.push("!_id");
     if (req.body.filename) validation.push("!filename");
@@ -376,7 +333,7 @@ class ImageController extends BaseController {
       }
     }
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res.status(400).send({
         error: { validation: validation.toLocaleString() },
       });
@@ -396,10 +353,10 @@ class ImageController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    let validation = [];
+    const validation = [];
     if (!id) validation.push("param:id");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res.status(400).send({
         error: { validation: validation.toLocaleString() },
       });
@@ -441,7 +398,6 @@ class ImageController extends BaseController {
     res: Response<any, Record<string, any>>
   ) {
     try {
-      console.log("Read All Images");
       const images = await Image.find({});
       return res.status(200).send(images);
     } catch (err) {
@@ -454,10 +410,10 @@ class ImageController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    let validation = [];
+    const validation = [];
     if (!id) validation.push("param:id");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res.status(400).send({
         error: { validation: validation.toLocaleString() },
       });
@@ -465,7 +421,7 @@ class ImageController extends BaseController {
     try {
       const image = await Image.findById(id);
       const data = await s3.getObject(s3ImageParams(image)).promise();
-      const download = Buffer.from(data.Body as String, "base64");
+      const download = Buffer.from(data.Body as string, "base64");
       res.contentType(data.ContentType);
       res.status(200).send(download);
     } catch (err) {

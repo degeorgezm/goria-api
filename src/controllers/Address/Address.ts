@@ -15,7 +15,7 @@ export class AddressController extends BaseController {
   ) {
     const user_id = req.params?.user_id;
 
-    let validation = [];
+    const validation = [];
     if (!user_id) validation.push("param:user_id");
     if (!req.body.name) validation.push("name");
     if (!req.body.address1) validation.push("address1");
@@ -27,7 +27,7 @@ export class AddressController extends BaseController {
     if (req.body.user) validation.push("!user");
     if (req.body.twilio) validation.push("!twilio");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res.status(400).send({
         error: { validation: validation.toLocaleString() },
       });
@@ -39,7 +39,6 @@ export class AddressController extends BaseController {
       }).save();
       return res.status(201).send(address);
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }
@@ -52,7 +51,7 @@ export class AddressController extends BaseController {
     const validation = [];
     if (!id) validation.push("param:id");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res
         .status(400)
         .send({ error: { validation: validation.toLocaleString() } });
@@ -63,7 +62,6 @@ export class AddressController extends BaseController {
       });
       return address ? res.status(200).send(address) : res.status(404).send({});
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }
@@ -75,7 +73,6 @@ export class AddressController extends BaseController {
       const addresses = await Address.find({});
       return res.status(200).send(addresses);
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }
@@ -85,13 +82,13 @@ export class AddressController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    let validation = [];
+    const validation = [];
     if (!id) validation.push("param:id");
     if (req.body.user) validation.push("!user");
     if (req.body.twilio) validation.push("!twilio");
     if (req.body._id) validation.push("!_id");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res.status(400).send({
         error: { validation: validation.toLocaleString() },
       });
@@ -102,7 +99,6 @@ export class AddressController extends BaseController {
       address = await address.save();
       return res.status(200).send(address);
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }
@@ -112,11 +108,11 @@ export class AddressController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    let validation = [];
+    const validation = [];
 
     if (!id) validation.push("param:id");
 
-    if (validation.length != 0)
+    if (validation.length !== 0)
       return res
         .status(400)
         .send({ error: { validation: validation.toLocaleString() } });
@@ -130,19 +126,17 @@ export class AddressController extends BaseController {
 
       const user = await User.findById(address.user);
 
-      let user_updated = false;
-      if (String(user.billing_address) == id) {
+      let userUpdated = false;
+      if (String(user.billing_address) === id) {
         user.billing_address = null;
-        user_updated = true;
+        userUpdated = true;
       }
-      if (String(user.shipping_address) == id) {
+      if (String(user.shipping_address) === id) {
         user.shipping_address = null;
-        user_updated = true;
+        userUpdated = true;
       }
 
-      if (user_updated) {
-        console.log("Updating user");
-        console.log(user);
+      if (userUpdated) {
         await user.save();
       }
 
@@ -151,7 +145,6 @@ export class AddressController extends BaseController {
       });
       return res.status(200).send(response);
     } catch (error) {
-      console.error(error);
       return res.status(400).send(error);
     }
   }

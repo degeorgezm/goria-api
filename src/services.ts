@@ -16,8 +16,9 @@ import { SECRET_KEY } from "./config";
 export async function initialize() {
   await connect();
 
-  const super_admins = await User.find({ role: Roles.SUPER_ADMIN });
-  if (super_admins.length == 0) {
+  const superAdmins = await User.find({ role: Roles.SUPER_ADMIN });
+  if (superAdmins.length === 0) {
+    /* tslint:disable-next-line no-console error */
     console.info("Super Admin not found. Creating...");
     await User.create({
       firstName: "Zach",
@@ -27,8 +28,10 @@ export async function initialize() {
       password: SECRET_KEY,
       role: Roles.SUPER_ADMIN,
     });
+    /* tslint:disable-next-line no-console error */
     console.info("Super Admin created");
   } else {
-    console.log("Super Admin found.");
+    /* tslint:disable-next-line no-console error */
+    console.info("Super Admin found.");
   }
 }

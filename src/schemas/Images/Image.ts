@@ -14,8 +14,8 @@ export enum ImageType {
 export interface IImage {
   _id: Schema.Types.ObjectId;
   filename: string;
-  key: string;
   type: ImageType;
+  key: string;
   object_id: Schema.Types.ObjectId;
   user?: Schema.Types.ObjectId;
   product?: Schema.Types.ObjectId;
@@ -30,9 +30,9 @@ export interface IImage {
 const ImageSchema = new Schema(
   {
     filename: { type: String, required: true },
-    key: { type: String, required: true },
     alt: { type: String, required: false, default: "Image" },
     type: { type: String, required: true, enum: ImageType },
+    key: { type: String, required: true },
     object_id: { type: Schema.Types.ObjectId, required: true },
     user: { type: Schema.Types.ObjectId, ref: "User", required: false },
     product: { type: Schema.Types.ObjectId, ref: "Product", required: false },
@@ -71,9 +71,7 @@ ImageSchema.pre(
   }
 );
 
-ImageSchema.post("deleteOne", async function (reponse) {
-  console.log("Image Deleted: ", reponse);
-});
+// ImageSchema.post("deleteOne", async (reponse) => {});
 
 // 3. Create a Model.
 export let Image = model<IImage>("Image", ImageSchema);
