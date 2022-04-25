@@ -136,7 +136,8 @@ UserSchema.methods.generateToken = function (): string {
 };
 
 UserSchema.methods.validPassword = async function (candidate) {
-  return await compare(candidate, this.password);
+  const valid = await compare(candidate, this.password);
+  return valid;
 };
 
 UserSchema.methods.admin = function () {

@@ -51,7 +51,7 @@ app.get("/", (req, res) => {
 
 app.use("/user", userRouter);
 app.use("/address", addressRouter);
-app.use("/authenticate", authRouter);
+app.use("/authorization", authRouter);
 app.use("/image", imageRouter);
 
 setAuthorizationStrategy(app);

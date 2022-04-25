@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 
 import { app } from "../../src/server";
 import { Image, User } from "../../src/schemas";
+import { Roles } from "../../src/schemas/Users/User";
 
 const user_body = {
   firstName: "Munchkin",
@@ -17,8 +18,19 @@ const user_body = {
   role: 7,
 };
 
+const admin_body = {
+  firstName: "user",
+  lastName: "admin",
+  password: "password",
+  email: "admin@as3ics.com",
+  role: Roles.ADMIN,
+  username: "admin",
+};
+
 describe("User Tests", () => {
-  jest.setTimeout(20000);
+  (async () => {
+    await User.deleteMany({});
+  })();
 
   beforeAll(async () => {
     await connect(global.__MONGO_URI__, { autoIndex: true });

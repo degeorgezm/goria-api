@@ -3,8 +3,9 @@ import { connect, disconnect } from "mongoose";
 import request from "supertest";
 
 import { User, Address } from "../../src/schemas";
-import { Roles } from "../../src/schemas/Users/User";
+import { IUser, Roles } from "../../src/schemas/Users/User";
 import { app } from "../../src/server";
+import { JWT_AUTH_HEADER } from "../../src/config";
 
 const user_body = {
   firstName: "Munchkin",
@@ -13,6 +14,15 @@ const user_body = {
   email: "munchkinconfidential@munchkin.com",
   role: Roles.USER,
   username: "munchkinconfidential@munchkin.com",
+};
+
+const admin_body = {
+  firstName: "user",
+  lastName: "admin",
+  password: "password",
+  email: "admin@as3ics.com",
+  role: Roles.ADMIN,
+  username: "admin",
 };
 
 const address_body = {
@@ -26,6 +36,23 @@ const address_body = {
 };
 
 describe("Address Tests", () => {
+  let user: IUser;
+  let jwt: string;
+
+  const setup = async () => {
+    await User.deleteMany({});
+
+    user = new User(user_body);
+    user = await user.save();
+
+    let res = await request(app).post("/authorization").send({
+      username: user_body.username,
+      password: user_body.password,
+    });
+
+    jwt = res.header[JWT_AUTH_HEADER];
+  };
+
   beforeAll(async () => {
     await connect(global.__MONGO_URI__, { autoIndex: true });
   });
@@ -34,21 +61,31 @@ describe("Address Tests", () => {
     await disconnect();
   });
 
+  test("0. setup", async () => {
+    await setup();
+
+    expect(user).toBeDefined();
+    expect(jwt).toBeDefined();
+  });
+
   test("1. address create route performs correctly", async () => {
-    // Create new user for use throughout test
-    let user = new User(user_body);
-
-    user = await user.save();
-
-    expect(user._id).toBeDefined();
-
-    const user_id = String(user._id);
+    expect(user).toBeDefined();
+    expect(jwt).toBeDefined();
 
     let res = await request(app)
-      .post("/address/" + user_id)
+      .post("/address/" + user._id)
       .send(address_body);
 
-    expect(res.statusCode).toEqual(201);
+    expect(res.statusCode).toEqual(404);
+    expect(res.body).toEqual({
+      error: "user not found",
+    });
+
+    res = await request(app)
+      .post("/address/" + String(user._id))
+      .set(JWT_AUTH_HEADER, jwt)
+      .send(address_body);
+
     expect(res.body).toEqual({
       _id: res.body._id,
       twilio: "1" + address_body.phone,
@@ -56,12 +93,14 @@ describe("Address Tests", () => {
       shipping: false,
       createdAt: res.body.createdAt,
       updatedAt: res.body.updatedAt,
-      user: user_id,
+      user: String(user._id),
       ...address_body,
     });
+    expect(res.statusCode).toEqual(201);
 
     res = await request(app)
-      .post("/address/" + user_id)
+      .post("/address/" + String(user._id))
+      .set(JWT_AUTH_HEADER, jwt)
       .send({
         user: "foo",
         twilio: "foo",
@@ -82,17 +121,19 @@ describe("Address Tests", () => {
 
     let address = addresses[0];
 
-    let res = await request(app).get("/address/" + address._id);
+    let res = await request(app)
+      .get("/address/" + String(address._id))
+      .set(JWT_AUTH_HEADER, jwt);
 
-    expect(res.statusCode).toEqual(200);
     expect(res.body).toBeInstanceOf(Object);
+    expect(res.statusCode).toEqual(200);
   });
 
   test("3. address read all route performs correctly", async () => {
-    let res = await request(app).get("/address");
+    let res = await request(app).get("/address").set(JWT_AUTH_HEADER, jwt);
 
-    expect(res.statusCode).toEqual(200);
     expect(res.body).toBeInstanceOf(Array);
+    expect(res.statusCode).toEqual(200);
   });
 
   test("4. address update route performs correctly", async () => {
@@ -105,6 +146,7 @@ describe("Address Tests", () => {
     // Insert another address
     let res = await request(app)
       .put("/address/" + address._id)
+      .set(JWT_AUTH_HEADER, jwt)
       .send({
         phone: "1112223333",
       });
@@ -120,6 +162,7 @@ describe("Address Tests", () => {
 
     res = await request(app)
       .put("/address/" + address._id)
+      .set(JWT_AUTH_HEADER, jwt)
       .send({
         _id: "foo",
         user: "foo",
@@ -133,7 +176,7 @@ describe("Address Tests", () => {
   test("5. address billing & shipping triggers perform correctly", async () => {
     const users = await User.find().where("username", user_body.username);
 
-    expect(users.length).toEqual(1);
+    expect(users.length).toBeGreaterThanOrEqual(1);
     let user = users[0];
     expect(user._id).toBeDefined();
 
@@ -142,6 +185,7 @@ describe("Address Tests", () => {
     // Insert another address
     let res = await request(app)
       .post("/address/" + user_id)
+      .set(JWT_AUTH_HEADER, jwt)
       .send(address_body);
 
     expect(res.statusCode).toEqual(201);
@@ -168,6 +212,7 @@ describe("Address Tests", () => {
 
     res = await request(app)
       .put("/address/" + address1._id)
+      .set(JWT_AUTH_HEADER, jwt)
       .send({
         shipping: true,
       });
@@ -179,6 +224,7 @@ describe("Address Tests", () => {
 
     res = await request(app)
       .put("/address/" + address1._id)
+      .set(JWT_AUTH_HEADER, jwt)
       .send({
         billing: true,
       });
@@ -196,6 +242,7 @@ describe("Address Tests", () => {
 
     res = await request(app)
       .put("/address/" + address2._id)
+      .set(JWT_AUTH_HEADER, jwt)
       .send({
         billing: true,
         shipping: true,
@@ -217,11 +264,16 @@ describe("Address Tests", () => {
 
     expect(addresses.length).toEqual(2);
 
-    let res = await request(app).delete("/address/" + addresses[1]._id);
+    const previous_id = String(addresses[1]._id);
+    let res = await request(app).delete("/address/" + previous_id);
+
+    expect(res.statusCode).toEqual(404);
+
+    res = await request(app)
+      .delete("/address/" + previous_id)
+      .set(JWT_AUTH_HEADER, jwt);
 
     expect(res.statusCode).toEqual(200);
-
-    const previous_id = addresses[1]._id;
 
     addresses = await Address.find();
 
@@ -229,11 +281,15 @@ describe("Address Tests", () => {
 
     expect(addresses[0]._id).not.toEqual(previous_id);
 
-    res = await request(app).delete("/address/" + previous_id);
+    res = await request(app)
+      .delete("/address/" + previous_id)
+      .set(JWT_AUTH_HEADER, jwt);
 
     expect(res.statusCode).toEqual(404);
 
-    res = await request(app).delete("/address/" + addresses[0]._id);
+    res = await request(app)
+      .delete("/address/" + String(addresses[0]._id))
+      .set(JWT_AUTH_HEADER, jwt);
 
     expect(res.statusCode).toEqual(200);
 

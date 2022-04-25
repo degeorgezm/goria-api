@@ -15,7 +15,20 @@ const user_body = {
   phone: "1111111111",
 };
 
+const admin_body = {
+  firstName: "user",
+  lastName: "admin",
+  password: "password",
+  email: "admin@as3ics.com",
+  role: Roles.ADMIN,
+  username: "admin",
+};
+
 describe("User Tests", () => {
+  (async () => {
+    await User.deleteMany({});
+  })();
+
   beforeAll(async () => {
     await connect(global.__MONGO_URI__, { autoIndex: true });
   });

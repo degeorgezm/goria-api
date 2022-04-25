@@ -23,9 +23,12 @@
     "serve": "nodemon src/index.ts",
     "typecheck": "tsc -p . --noEmit true",
     "test-all": "npm run typecheck && npm run lint && cross-env NODE_ENV=test jest --silent -w 4",
-    "test": "cross-env NODE_ENV=test jest --silent -w 4",
+    "test": "cross-env NODE_ENV=test jest --silent -w 1",
     "lint:src": "tslint -c ./tslint.json 'src/**/*.ts'",
-    "lint": "npm run lint:src"
+    "lint": "npm run lint:src",
+    "linecount:src": "cloc --by-file-by-lang src --include-lang=TypeScript ",
+    "linecount:test": "cloc --by-file-by-lang test --include-lang=TypeScript",
+    "linecount": "npm run linecount:src && npm run linecount:test"
   },
   "dependencies": {
     "ajv": "^8.11.0",
@@ -74,6 +77,7 @@
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",
     "@types/supertest": "^2.0.12",
+    "cloc": "^2.9.0",
     "concurrently": "^7.1.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.14.0",

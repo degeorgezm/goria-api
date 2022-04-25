@@ -21,6 +21,8 @@ export interface IAddress {
   user: Schema.Types.ObjectId;
   billing?: boolean;
   shipping?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
   save(): IAddress | PromiseLike<IAddress>;
 }
 

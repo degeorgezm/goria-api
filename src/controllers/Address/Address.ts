@@ -1,22 +1,21 @@
 /** @format */
 
-import { forEach } from "async";
 import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../../controllers/BaseController";
-import { Address, User } from "./../../schemas";
+import { Address, IUser, User } from "./../../schemas";
 
 export class AddressController extends BaseController {
   public async create(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    const user_id = req.params?.user_id;
+    const id = req.params?.id;
 
     const validation = [];
-    if (!user_id) validation.push("param:user_id");
+    if (!id) validation.push("param:id");
     if (!req.body.name) validation.push("name");
     if (!req.body.address1) validation.push("address1");
     if (!req.body.zip) validation.push("zip");
@@ -33,9 +32,13 @@ export class AddressController extends BaseController {
       });
 
     try {
+      const user: any = req.user;
+      if (!user.admin() && String(user._id) !== id)
+        return res.status(400).send({ error: "not authorized" });
+
       const address = await new Address({
         ...req.body,
-        user: user_id,
+        user: id,
       }).save();
       return res.status(201).send(address);
     } catch (error) {
@@ -57,9 +60,15 @@ export class AddressController extends BaseController {
         .send({ error: { validation: validation.toLocaleString() } });
 
     try {
+      const user: any = req.user;
+      if (!user.admin())
+        if (!user) return res.status(400).send({ error: "not authorized" });
+
       const address = await Address.findOne({
         _id: id,
+        user: String(user._id),
       });
+
       return address ? res.status(200).send(address) : res.status(404).send({});
     } catch (error) {
       return res.status(400).send(error);
@@ -70,7 +79,11 @@ export class AddressController extends BaseController {
     res: Response<any, Record<string, any>>
   ) {
     try {
-      const addresses = await Address.find({});
+      const user: any = req.user;
+      if (!user.admin())
+        if (!user) return res.status(400).send({ error: "not authorized" });
+
+      const addresses = await Address.find({ user: user._id });
       return res.status(200).send(addresses);
     } catch (error) {
       return res.status(400).send(error);
@@ -94,7 +107,17 @@ export class AddressController extends BaseController {
       });
 
     try {
-      let address = await Address.findById(id);
+      const user: any = req.user;
+      if (!user.admin())
+        if (!user) return res.status(400).send({ error: "not authorized" });
+
+      let address = await Address.findOne({
+        _id: id,
+        user: String(user._id),
+      });
+
+      if (!address) return res.status(404).send({ error: "address not found" });
+
       for (const record in req.body) address[record] = req.body[record];
       address = await address.save();
       return res.status(200).send(address);
@@ -118,13 +141,18 @@ export class AddressController extends BaseController {
         .send({ error: { validation: validation.toLocaleString() } });
 
     try {
-      const address = await Address.findById(id);
+      let user: any = req.user;
+      if (!user.admin())
+        if (!user) return res.status(400).send({ error: "not authorized" });
 
-      if (!address) {
-        return res.status(404).send({ error: "Address not found." });
-      }
+      const address = await Address.findOne({
+        _id: id,
+        user: user._id,
+      });
 
-      const user = await User.findById(address.user);
+      if (!address) return res.status(404).send({ error: "address not found" });
+
+      user = await User.findById(address.user);
 
       let userUpdated = false;
       if (String(user.billing_address) === id) {
@@ -136,16 +164,15 @@ export class AddressController extends BaseController {
         userUpdated = true;
       }
 
-      if (userUpdated) {
-        await user.save();
-      }
+      if (userUpdated) await user.save();
 
       const response = await Address.deleteOne({
         _id: id,
+        user: String(user._id),
       });
       return res.status(200).send(response);
     } catch (error) {
-      return res.status(400).send(error);
+      return res.status(400).send({ error });
     }
   }
 }
