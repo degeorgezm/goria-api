@@ -34,7 +34,7 @@ export class LineController extends BaseController {
       let line = await new Line({
         ...req.body,
       }).save();
-      line = await Line.findById(id).populate(LineController.populates);
+      line = await Line.findById(line._id).populate(LineController.populates);
       return res.status(201).send(line);
     } catch (error) {
       return res.status(400).send(error);
