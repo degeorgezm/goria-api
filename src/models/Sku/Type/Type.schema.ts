@@ -11,7 +11,7 @@ export interface IType {
   save(): IType | PromiseLike<IType>;
 }
 
-var TypeSchema = new Schema(
+const TypeSchema = new Schema(
   {
     name: { type: String, unique: true, required: true },
     sku_shortcode: { type: String, unique: true, required: true },

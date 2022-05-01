@@ -2,8 +2,8 @@
 
 import { Schema } from "mongoose";
 
-interface document {
+interface Document {
   _id: Schema.Types.ObjectId;
 }
 
-export const isDocument = (test: any): test is document => test._id in test;
+export const isDocument = (test: any): test is Document => test._id in test;

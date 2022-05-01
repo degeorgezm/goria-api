@@ -11,7 +11,7 @@ export interface ILine {
   save(): ILine | PromiseLike<ILine>;
 }
 
-var LineSchema = new Schema(
+const LineSchema = new Schema(
   {
     name: { type: String, unique: true, required: true },
     sku_shortcode: { type: String, unique: true, required: true },

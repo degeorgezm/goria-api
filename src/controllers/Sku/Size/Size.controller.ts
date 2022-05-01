@@ -60,6 +60,7 @@ export class SizeController extends BaseController {
     const type = req.query?.type;
 
     const query = {};
+    /* tslint:disable-next-line no-string-literal error */
     if (type) query["type"] = type;
 
     try {

@@ -18,7 +18,7 @@
     "development": "pm2 start ecosystem.config.js --only goria-api-dev",
     "linecount": "npm run linecount:src && npm run linecount:test",
     "linecount:src": "cloc --by-file-by-lang src --include-lang=TypeScript ",
-    "linecount:test": "cloc --by-file-by-lang test --include-lang=TypeScript",
+    "linecount:test": "cloc --by-file-by-lang tests --include-lang=TypeScript",
     "lint": "npm run lint:src",
     "lint:src": "tslint -c ./tslint.json 'src/**/*.ts'",
     "production": "pm2 start ecosystem.config.js --only goria-api",
@@ -27,7 +27,8 @@
     "stop": "pm2 delete all",
     "test": "cross-env NODE_ENV=test jest --silent -w 1",
     "test-all": "npm run typecheck && npm run lint && cross-env NODE_ENV=test jest --silent -w 4",
-    "typecheck": "tsc -p . --noEmit true"
+    "typecheck": "tsc -p . --noEmit true",
+    "precommit": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {
     "ajv": "^8.11.0",

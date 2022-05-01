@@ -17,6 +17,7 @@ export class VariantController extends BaseController {
     const id = req.params?.id;
 
     const validation = [];
+    if (req.body._id) validation.push("!_id");
     if (!req.body.name) validation.push("name");
     if (!req.body.sku_shortcode) validation.push("sku_shortcode");
     if (!req.body.display) validation.push("display");
@@ -28,10 +29,6 @@ export class VariantController extends BaseController {
       });
 
     try {
-      const user: any = req.user;
-      if (!user.admin() && String(user._id) !== id)
-        return res.status(400).send({ error: "not authorized" });
-
       let variant = await new Variant({
         ...req.body,
       }).save();
@@ -65,10 +62,9 @@ export class VariantController extends BaseController {
     res: Response<any, Record<string, any>>
   ) {
     const type = req.query?.type;
-
     const query = {};
+    /* tslint:disable-next-line no-string-literal error */
     if (type) query["type"] = type;
-
     try {
       const variants = await Variant.find(query).populate(
         VariantController.populates
@@ -83,12 +79,17 @@ export class VariantController extends BaseController {
     res: Response<any, Record<string, any>>
   ) {
     const id = req.params?.id;
+    const validation = [];
+    if (req.body._id) validation.push("!_id");
+
+    if (validation.length !== 0)
+      return res.status(400).send({
+        error: { validation: validation.toLocaleString() },
+      });
 
     try {
       let variant = await Variant.findById(id);
-
       if (!variant) return res.status(404).send({ error: "not found" });
-
       for (const index in req.body) variant[index] = req.body[index];
       variant = await variant.save();
       variant = await Variant.findById(id).populate(
@@ -106,10 +107,6 @@ export class VariantController extends BaseController {
     const id = req.params?.id;
 
     try {
-      let user: any = req.user;
-      if (!user.admin())
-        if (!user) return res.status(400).send({ error: "not authorized" });
-
       const response = await Variant.deleteOne({
         _id: id,
       });

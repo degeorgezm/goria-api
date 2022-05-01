@@ -13,7 +13,7 @@ export interface ISize {
   save(): ISize | PromiseLike<ISize>;
 }
 
-var SizeSchema = new Schema(
+const SizeSchema = new Schema(
   {
     name: { type: String, unique: true, required: true },
     sku_shortcode: { type: String, unique: true, required: true },

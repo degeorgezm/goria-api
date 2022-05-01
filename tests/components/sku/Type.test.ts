@@ -78,7 +78,7 @@ describe("Type Tests", () => {
     expect(jwt_admin).not.toEqual(undefined);
   });
 
-  test("1. size create endpoint performs correctly", async () => {
+  test("1. type create endpoint performs correctly", async () => {
     let res = await request(app)
       .post("/sku/type")
       .set(JWT_AUTH_HEADER, jwt_admin)
@@ -96,7 +96,7 @@ describe("Type Tests", () => {
     });
   });
 
-  test("2. size create endpoint security check", async () => {
+  test("2. type create endpoint security check", async () => {
     let res = await request(app)
       .post("/sku/type")
       .set(JWT_AUTH_HEADER, jwt_user)
@@ -104,5 +104,149 @@ describe("Type Tests", () => {
 
     expect(res.statusCode).toEqual(401);
     expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("3. type create endpoint validators performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/type")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send({
+        _id: "foo",
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({
+      error: { validation: "!_id,name,sku_shortcode,display" },
+    });
+  });
+
+  test("4. type read endpoint performs correctly", async () => {
+    const types = await Type.find({});
+
+    expect(types.length).toEqual(1);
+
+    let type = types[0];
+
+    let res = await request(app).get("/sku/type/" + String(type._id));
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toEqual({
+      _id: res.body._id,
+      ...type_body,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("5. type read all endpoint performs correctly", async () => {
+    const types = await Type.find({});
+
+    expect(types.length).toEqual(1);
+
+    let res = await request(app).get("/sku/type/");
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body.length).toEqual(1);
+  });
+
+  test("6. type update endpoint performs correctly", async () => {
+    const types = await Type.find({});
+
+    expect(types.length).toEqual(1);
+
+    let type = types[0];
+    let updates = {
+      name: type.name + "-updated",
+    };
+
+    expect(type.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/type/" + String(type._id))
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.name).toEqual(updates.name);
+
+    type = await Type.findById(type._id);
+    expect(type.name).toEqual(updates.name);
+  });
+
+  test("7. type update endpoint security check", async () => {
+    const types = await Type.find({});
+
+    expect(types.length).toEqual(1);
+
+    let type = types[0];
+    let updates = {
+      name: type.name + "-updated",
+    };
+
+    expect(type.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/type/" + String(type._id))
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("8. type update endpoint validators performs correctly", async () => {
+    const types = await Type.find({});
+
+    expect(types.length).toEqual(1);
+
+    let type = types[0];
+    let updates = {
+      name: type.name + "-updated",
+      _id: type._id,
+    };
+
+    expect(type.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/type/" + String(type._id))
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({ error: { validation: "!_id" } });
+  });
+
+  test("9. type delete endpoint security check", async () => {
+    const types = await Type.find({});
+
+    expect(types.length).toEqual(1);
+
+    let type = types[0];
+
+    let res = await request(app)
+      .delete("/sku/type/" + String(type._id))
+      .set(JWT_AUTH_HEADER, jwt_user);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("10. type delete endpoint performs correctly", async () => {
+    let types = await Type.find({});
+
+    expect(types.length).toEqual(1);
+
+    let type = types[0];
+
+    let res = await request(app)
+      .delete("/sku/type/" + String(type._id))
+      .set(JWT_AUTH_HEADER, jwt_admin);
+
+    types = await Type.find({});
+
+    expect(res.statusCode).toEqual(200);
+    expect(types.length).toEqual(0);
+    expect(res.body).toEqual({ acknowledged: true, deletedCount: 1 });
   });
 });

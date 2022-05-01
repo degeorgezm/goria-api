@@ -11,7 +11,7 @@ export interface IBrand {
   save(): IBrand | PromiseLike<IBrand>;
 }
 
-var BrandSchema = new Schema(
+const BrandSchema = new Schema(
   {
     name: { type: String, unique: true, required: true },
     sku_shortcode: { type: String, unique: true, required: true },

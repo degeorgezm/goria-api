@@ -16,7 +16,7 @@ export interface IVariant {
   save(): IVariant | PromiseLike<IVariant>;
 }
 
-var VariantSchema = new Schema(
+const VariantSchema = new Schema(
   {
     name: { type: String, required: true },
     sku_shortcode: { type: String, unique: true, required: true },

@@ -11,7 +11,7 @@ export interface IGroup {
   save(): IGroup | PromiseLike<IGroup>;
 }
 
-var GroupSchema = new Schema(
+const GroupSchema = new Schema(
   {
     name: { type: String, unique: true, required: true },
     sku_shortcode: { type: String, unique: true, required: true },
