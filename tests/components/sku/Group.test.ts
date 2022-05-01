@@ -94,7 +94,7 @@ describe("Group Tests", () => {
     });
   });
 
-  test("2. brand create endpoint security check", async () => {
+  test("2. group create endpoint security check", async () => {
     let res = await request(app)
       .post("/sku/group")
       .set(JWT_AUTH_HEADER, jwt_user)
@@ -102,5 +102,149 @@ describe("Group Tests", () => {
 
     expect(res.statusCode).toEqual(401);
     expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("3. group create endpoint validators performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/group")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send({
+        _id: "foo",
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({
+      error: { validation: "!_id,name,sku_shortcode,display" },
+    });
+  });
+
+  test("4. group read endpoint performs correctly", async () => {
+    const groups = await Group.find({});
+
+    expect(groups.length).toEqual(1);
+
+    let group = groups[0];
+
+    let res = await request(app).get("/sku/group/" + String(group._id));
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toEqual({
+      ...group_body,
+      _id: res.body._id,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("5. group read all endpoint performs correctly", async () => {
+    const groups = await Group.find({});
+
+    expect(groups.length).toEqual(1);
+
+    let res = await request(app).get("/sku/group/");
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body.length).toEqual(1);
+  });
+
+  test("6. group update endpoint performs correctly", async () => {
+    const groups = await Group.find({});
+
+    expect(groups.length).toEqual(1);
+
+    let group = groups[0];
+    let updates = {
+      name: group.name + "-updated",
+    };
+
+    expect(group.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/group/" + String(group._id))
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.name).toEqual(updates.name);
+
+    group = await Group.findById(group._id);
+    expect(group.name).toEqual(updates.name);
+  });
+
+  test("7. group update endpoint security check", async () => {
+    const groups = await Group.find({});
+
+    expect(groups.length).toEqual(1);
+
+    let group = groups[0];
+    let updates = {
+      name: group.name + "-updated",
+    };
+
+    expect(group.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/group/" + String(group._id))
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("8. group update endpoint validators performs correctly", async () => {
+    const groups = await Group.find({});
+
+    expect(groups.length).toEqual(1);
+
+    let group = groups[0];
+    let updates = {
+      name: group.name + "-updated",
+      _id: group._id,
+    };
+
+    expect(group.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/group/" + String(group._id))
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({ error: { validation: "!_id" } });
+  });
+
+  test("9. group delete endpoint security check", async () => {
+    const groups = await Group.find({});
+
+    expect(groups.length).toEqual(1);
+
+    let group = groups[0];
+
+    let res = await request(app)
+      .delete("/sku/group/" + String(group._id))
+      .set(JWT_AUTH_HEADER, jwt_user);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("10. group delete endpoint performs correctly", async () => {
+    let groups = await Group.find({});
+
+    expect(groups.length).toEqual(1);
+
+    let group = groups[0];
+
+    let res = await request(app)
+      .delete("/sku/group/" + String(group._id))
+      .set(JWT_AUTH_HEADER, jwt_admin);
+
+    groups = await Group.find({});
+
+    expect(res.statusCode).toEqual(200);
+    expect(groups.length).toEqual(0);
+    expect(res.body).toEqual({ acknowledged: true, deletedCount: 1 });
   });
 });

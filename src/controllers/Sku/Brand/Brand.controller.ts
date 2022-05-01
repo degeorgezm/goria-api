@@ -14,9 +14,8 @@ export class BrandController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    const id = req.params?.id;
-
     const validation = [];
+    if (req.body._id) validation.push("!_id");
     if (!req.body.name) validation.push("name");
     if (!req.body.sku_shortcode) validation.push("sku_shortcode");
     if (!req.body.display) validation.push("display");
@@ -27,10 +26,6 @@ export class BrandController extends BaseController {
       });
 
     try {
-      const user: any = req.user;
-      if (!user.admin() && String(user._id) !== id)
-        return res.status(400).send({ error: "not authorized" });
-
       let brand = await new Brand({
         ...req.body,
       }).save();
@@ -78,6 +73,7 @@ export class BrandController extends BaseController {
     const id = req.params?.id;
 
     const validation = [];
+    if (req.body._id) validation.push("!_id");
 
     if (validation.length !== 0)
       return res.status(400).send({
@@ -105,18 +101,7 @@ export class BrandController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    const validation = [];
-
-    if (validation.length !== 0)
-      return res
-        .status(400)
-        .send({ error: { validation: validation.toLocaleString() } });
-
     try {
-      let user: any = req.user;
-      if (!user.admin())
-        if (!user) return res.status(400).send({ error: "not authorized" });
-
       const response = await Brand.deleteOne({
         _id: id,
       });

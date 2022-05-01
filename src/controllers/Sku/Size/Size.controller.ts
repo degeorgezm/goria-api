@@ -17,6 +17,7 @@ export class SizeController extends BaseController {
     const id = req.params?.id;
 
     const validation = [];
+    if (req.body._id) validation.push("!_id");
     if (!req.body.name) validation.push("name");
     if (!req.body.sku_shortcode) validation.push("sku_shortcode");
     if (!req.body.display) validation.push("display");
@@ -28,10 +29,6 @@ export class SizeController extends BaseController {
       });
 
     try {
-      const user: any = req.user;
-      if (!user.admin() && String(user._id) !== id)
-        return res.status(400).send({ error: "not authorized" });
-
       let size = await new Size({
         ...req.body,
       }).save();
@@ -79,6 +76,7 @@ export class SizeController extends BaseController {
     const id = req.params?.id;
 
     const validation = [];
+    if (req.body._id) validation.push("!_id");
 
     if (validation.length !== 0)
       return res.status(400).send({
@@ -87,9 +85,7 @@ export class SizeController extends BaseController {
 
     try {
       let size = await Size.findById(id);
-
       if (!size) return res.status(404).send({ error: "not found" });
-
       for (const index in req.body) size[index] = req.body[index];
       size = await size.save();
       size = await Size.findById(id).populate(SizeController.populates);
@@ -104,18 +100,7 @@ export class SizeController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    const validation = [];
-
-    if (validation.length !== 0)
-      return res
-        .status(400)
-        .send({ error: { validation: validation.toLocaleString() } });
-
     try {
-      let user: any = req.user;
-      if (!user.admin())
-        if (!user) return res.status(400).send({ error: "not authorized" });
-
       const response = await Size.deleteOne({
         _id: id,
       });

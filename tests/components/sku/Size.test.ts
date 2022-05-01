@@ -129,4 +129,158 @@ describe("Size Tests", () => {
     expect(res.statusCode).toEqual(401);
     expect(res.body).toEqual({ error: "unauthorized" });
   });
+
+  test("3. size create endpoint validators performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/size")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send({
+        _id: "foo",
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({
+      error: { validation: "!_id,name,sku_shortcode,display,type" },
+    });
+  });
+
+  test("4. size read endpoint performs correctly", async () => {
+    const sizes = await Size.find({});
+
+    expect(sizes.length).toEqual(1);
+
+    let size = sizes[0];
+
+    let res = await request(app).get("/sku/size/" + String(size._id));
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toEqual({
+      _id: res.body._id,
+      display: size_body.display,
+      name: size_body.name,
+      type: {
+        _id: String(type._id),
+        createdAt: res.body.type.createdAt,
+        display: type.display,
+        name: type.name,
+        sku_shortcode: type.sku_shortcode,
+        updatedAt: res.body.type.updatedAt,
+      },
+      sku_shortcode: size_body.sku_shortcode,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("5. size read all endpoint performs correctly", async () => {
+    const sizes = await Size.find({});
+
+    expect(sizes.length).toEqual(1);
+
+    let res = await request(app).get("/sku/size/");
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body.length).toEqual(1);
+  });
+
+  test("6. size update endpoint performs correctly", async () => {
+    const sizes = await Size.find({});
+
+    expect(sizes.length).toEqual(1);
+
+    let size = sizes[0];
+    let updates = {
+      name: size.name + "-updated",
+    };
+
+    expect(size.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/size/" + String(size._id))
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.name).toEqual(updates.name);
+
+    size = await Size.findById(size._id);
+    expect(size.name).toEqual(updates.name);
+  });
+
+  test("7. size update endpoint security check", async () => {
+    const sizes = await Size.find({});
+
+    expect(sizes.length).toEqual(1);
+
+    let size = sizes[0];
+    let updates = {
+      name: size.name + "-updated",
+    };
+
+    expect(size.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/size/" + String(size._id))
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("8. size update endpoint validators performs correctly", async () => {
+    const sizes = await Size.find({});
+
+    expect(sizes.length).toEqual(1);
+
+    let size = sizes[0];
+    let updates = {
+      name: size.name + "-updated",
+      _id: size._id,
+    };
+
+    expect(size.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/size/" + String(size._id))
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({ error: { validation: "!_id" } });
+  });
+
+  test("9. size delete endpoint security check", async () => {
+    const sizes = await Size.find({});
+
+    expect(sizes.length).toEqual(1);
+
+    let size = sizes[0];
+
+    let res = await request(app)
+      .delete("/sku/size/" + String(size._id))
+      .set(JWT_AUTH_HEADER, jwt_user);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("10. size delete endpoint performs correctly", async () => {
+    let sizes = await Size.find({});
+
+    expect(sizes.length).toEqual(1);
+
+    let size = sizes[0];
+
+    let res = await request(app)
+      .delete("/sku/size/" + String(size._id))
+      .set(JWT_AUTH_HEADER, jwt_admin);
+
+    sizes = await Size.find({});
+
+    expect(res.statusCode).toEqual(200);
+    expect(sizes.length).toEqual(0);
+    expect(res.body).toEqual({ acknowledged: true, deletedCount: 1 });
+  });
 });

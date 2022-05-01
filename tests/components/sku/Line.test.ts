@@ -25,7 +25,7 @@ const user_body = {
 };
 
 const line_body = {
-  name: "Group",
+  name: "Line",
   sku_shortcode: "GR",
   display: true,
 };
@@ -102,5 +102,149 @@ describe("Line Tests", () => {
 
     expect(res.statusCode).toEqual(401);
     expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("3. line create endpoint validators performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/line")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send({
+        _id: "foo",
+      });
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({
+      error: { validation: "!_id,name,sku_shortcode,display" },
+    });
+  });
+
+  test("4. line read endpoint performs correctly", async () => {
+    const lines = await Line.find({});
+
+    expect(lines.length).toEqual(1);
+
+    let line = lines[0];
+
+    let res = await request(app).get("/sku/line/" + String(line._id));
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toEqual({
+      ...line_body,
+      _id: res.body._id,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("5. line read all endpoint performs correctly", async () => {
+    const lines = await Line.find({});
+
+    expect(lines.length).toEqual(1);
+
+    let res = await request(app).get("/sku/line/");
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body.length).toEqual(1);
+  });
+
+  test("6. line update endpoint performs correctly", async () => {
+    const lines = await Line.find({});
+
+    expect(lines.length).toEqual(1);
+
+    let line = lines[0];
+    let updates = {
+      name: line.name + "-updated",
+    };
+
+    expect(line.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/line/" + String(line._id))
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body.name).toEqual(updates.name);
+
+    line = await Line.findById(line._id);
+    expect(line.name).toEqual(updates.name);
+  });
+
+  test("7. line update endpoint security check", async () => {
+    const lines = await Line.find({});
+
+    expect(lines.length).toEqual(1);
+
+    let line = lines[0];
+    let updates = {
+      name: line.name + "-updated",
+    };
+
+    expect(line.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/line/" + String(line._id))
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("8. line update endpoint validators performs correctly", async () => {
+    const lines = await Line.find({});
+
+    expect(lines.length).toEqual(1);
+
+    let line = lines[0];
+    let updates = {
+      name: line.name + "-updated",
+      _id: line._id,
+    };
+
+    expect(line.name).not.toEqual(updates.name);
+
+    let res = await request(app)
+      .put("/sku/line/" + String(line._id))
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(updates);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toEqual({ error: { validation: "!_id" } });
+  });
+
+  test("9. line delete endpoint security check", async () => {
+    const lines = await Line.find({});
+
+    expect(lines.length).toEqual(1);
+
+    let line = lines[0];
+
+    let res = await request(app)
+      .delete("/sku/line/" + String(line._id))
+      .set(JWT_AUTH_HEADER, jwt_user);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
+  });
+
+  test("10. line delete endpoint performs correctly", async () => {
+    let lines = await Line.find({});
+
+    expect(lines.length).toEqual(1);
+
+    let line = lines[0];
+
+    let res = await request(app)
+      .delete("/sku/line/" + String(line._id))
+      .set(JWT_AUTH_HEADER, jwt_admin);
+
+    lines = await Line.find({});
+
+    expect(res.statusCode).toEqual(200);
+    expect(lines.length).toEqual(0);
+    expect(res.body).toEqual({ acknowledged: true, deletedCount: 1 });
   });
 });

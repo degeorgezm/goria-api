@@ -105,13 +105,6 @@ export class UserController extends BaseController {
   ) {
     const id = req.params?.id;
 
-    const validation = [];
-
-    if (validation.length !== 0)
-      return res
-        .status(400)
-        .send({ error: { validation: validation.toLocaleString() } });
-
     try {
       await Address.deleteMany({
         user: id,

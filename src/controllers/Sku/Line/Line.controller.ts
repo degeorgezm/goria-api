@@ -17,6 +17,7 @@ export class LineController extends BaseController {
     const id = req.params?.id;
 
     const validation = [];
+    if (req.body._id) validation.push("!_id");
     if (!req.body.name) validation.push("name");
     if (!req.body.sku_shortcode) validation.push("sku_shortcode");
     if (!req.body.display) validation.push("display");
@@ -27,10 +28,6 @@ export class LineController extends BaseController {
       });
 
     try {
-      const user: any = req.user;
-      if (!user.admin() && String(user._id) !== id)
-        return res.status(400).send({ error: "not authorized" });
-
       let line = await new Line({
         ...req.body,
       }).save();
@@ -74,6 +71,7 @@ export class LineController extends BaseController {
     const id = req.params?.id;
 
     const validation = [];
+    if (req.body._id) validation.push("!_id");
 
     if (validation.length !== 0)
       return res.status(400).send({
@@ -82,9 +80,7 @@ export class LineController extends BaseController {
 
     try {
       let line = await Line.findById(id);
-
       if (!line) return res.status(404).send({ error: "not found" });
-
       for (const index in req.body) line[index] = req.body[index];
       line = await line.save();
       line = await Line.findById(line._id).populate(LineController.populates);
@@ -100,10 +96,6 @@ export class LineController extends BaseController {
     const id = req.params?.id;
 
     try {
-      let user: any = req.user;
-      if (!user.admin())
-        if (!user) return res.status(400).send({ error: "not authorized" });
-
       const response = await Line.deleteOne({
         _id: id,
       });
