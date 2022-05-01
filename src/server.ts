@@ -15,7 +15,17 @@
 import express from "express";
 
 import { setAuthorizationStrategy, authRouter } from "./authentication";
-import { userRouter, addressRouter, imageRouter, skuRouter } from "./routes";
+import {
+  userRouter,
+  addressRouter,
+  imageRouter,
+  brandRouter,
+  groupRouter,
+  lineRouter,
+  sizeRouter,
+  typeRouter,
+  variantRouter,
+} from "./routes";
 
 import { PORT, LOGGING_ENABLED, VERSION } from "./config";
 import { Server } from "http";
@@ -53,7 +63,12 @@ app.use("/user", userRouter);
 app.use("/address", addressRouter);
 app.use("/authorization", authRouter);
 app.use("/image", imageRouter);
-app.use("/sku", skuRouter);
+app.use("/sku/brand", brandRouter);
+app.use("/sku/group", groupRouter);
+app.use("/sku/line", lineRouter);
+app.use("/sku/size", sizeRouter);
+app.use("/sku/type", typeRouter);
+app.use("/sku/variant", variantRouter);
 
 setAuthorizationStrategy(app);
 

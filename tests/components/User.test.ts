@@ -3,9 +3,8 @@
 import { connect, disconnect } from "mongoose";
 import request from "supertest";
 
+import { User, Roles } from "../../src/models";
 import { app } from "../../src/server";
-import { User } from "../../src/schemas";
-import { Roles } from "../../src/schemas/Users/User";
 
 const user_body = {
   firstName: "Munchkin",

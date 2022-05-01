@@ -5,7 +5,8 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../BaseController";
-import { Address, User } from "../../models";
+import { Address, IUser, User } from "../../models";
+import { Schema } from "mongoose";
 
 export class AddressController extends BaseController {
   private static populates = "user";
@@ -44,6 +45,7 @@ export class AddressController extends BaseController {
       address = await Address.findById(address._id).populate(
         AddressController.populates
       );
+      (address.user as IUser).password = "";
       return res.status(201).send(address);
     } catch (error) {
       return res.status(400).send(error);

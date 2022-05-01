@@ -15,15 +15,6 @@ const user_body = {
   username: "munchkinconfidential@munchkin.com",
 };
 
-const admin_body = {
-  firstName: "user",
-  lastName: "admin",
-  password: "password",
-  email: "admin@as3ics.com",
-  role: Roles.ADMIN,
-  username: "admin",
-};
-
 const address_body = {
   name: "Test Address",
   address1: "111 Foo St",
@@ -40,6 +31,7 @@ describe("Address Tests", () => {
 
   const setup = async () => {
     await User.deleteMany({});
+    await Address.deleteMany({});
 
     user = new User(user_body);
     user = await user.save();
@@ -92,7 +84,17 @@ describe("Address Tests", () => {
       shipping: false,
       createdAt: res.body.createdAt,
       updatedAt: res.body.updatedAt,
-      user: String(user._id),
+      user: {
+        _id: res.body.user._id,
+        createdAt: res.body.user.createdAt,
+        email: user_body.email,
+        firstName: user_body.firstName,
+        lastName: user_body.lastName,
+        password: "",
+        role: 7,
+        updatedAt: res.body.user.updatedAt,
+        username: user_body.username,
+      },
       ...address_body,
     });
     expect(res.statusCode).toEqual(201);

@@ -25,4 +25,4 @@ var LineSchema = new Schema(
 );
 
 // 3. Create a Model.
-export const Line = model<ILine>("Brand", LineSchema);
+export const Line = model<ILine>("Line", LineSchema);

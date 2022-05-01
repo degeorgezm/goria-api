@@ -24,4 +24,4 @@ var GroupSchema = new Schema(
 );
 
 // 3. Create a Model.
-export const Group = model<IGroup>("Brand", GroupSchema);
+export const Group = model<IGroup>("Group", GroupSchema);

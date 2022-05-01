@@ -4,9 +4,8 @@ import { connect, disconnect } from "mongoose";
 import request from "supertest";
 import { readFileSync } from "node:fs";
 
+import { Image, User, Roles } from "../../src/models";
 import { app } from "../../src/server";
-import { Image, User } from "../../src/schemas";
-import { Roles } from "../../src/schemas/Users/User";
 
 const user_body = {
   firstName: "Munchkin",

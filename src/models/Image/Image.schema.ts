@@ -76,4 +76,4 @@ ImageSchema.pre(
 // ImageSchema.post("deleteOne", async (reponse) => {});
 
 // 3. Create a Model.
-export let Image = model<IImage>("Image", ImageSchema);
+export const Image = model<IImage>("Image", ImageSchema);

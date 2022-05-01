@@ -24,4 +24,4 @@ var TypeSchema = new Schema(
 );
 
 // 3. Create a Model.
-export const Type = model<IType>("Brand", TypeSchema);
+export const Type = model<IType>("Type", TypeSchema);

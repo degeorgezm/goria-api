@@ -10,5 +10,4 @@ export {
   sizeRouter,
   typeRouter,
   variantRouter,
-  skuRouter,
 } from "./Sku";

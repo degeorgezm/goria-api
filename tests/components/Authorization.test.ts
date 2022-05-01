@@ -3,8 +3,7 @@
 import { connect, disconnect } from "mongoose";
 import request from "supertest";
 
-import { User, Address } from "../../src/schemas";
-import { IUser, Roles } from "../../src/schemas/Users/User";
+import { User, Address, IUser, Roles } from "../../src/models";
 import { app } from "../../src/server";
 import { JWT_AUTH_HEADER } from "../../src/config";
 
