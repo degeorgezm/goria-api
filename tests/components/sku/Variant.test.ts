@@ -2,7 +2,16 @@
 import { connect, disconnect } from "mongoose";
 import request from "supertest";
 
-import { User, IUser, Roles, Variant, Type, Image } from "../../../src/models";
+import {
+  User,
+  IUser,
+  Roles,
+  Variant,
+  Type,
+  Image,
+  IVariant,
+  IType,
+} from "../../../src/models";
 import { app } from "../../../src/server";
 import { JWT_AUTH_HEADER } from "../../../src/config";
 
@@ -24,23 +33,41 @@ const user_body = {
   username: "johndoe@email.com",
 };
 
+const type_body = {
+  name: "Type",
+  sku_shortcode: "TY",
+  display: true,
+};
+
+const variant_body = {
+  name: "Variant",
+  sku_shortcode: "VR",
+  type: undefined,
+  display: true,
+};
+
 describe("Variant Tests", () => {
   let admin: IUser;
   let user: IUser;
   let jwt_admin: string;
   let jwt_user: string;
+  let type: IType;
 
   const setup = async () => {
     await User.deleteMany({});
     await Variant.deleteMany({});
     await Type.deleteMany({});
-    await Image.deleteMany({});
 
     admin = new User(admin_body);
     admin = await admin.save();
 
     user = new User(user_body);
     user = await user.save();
+
+    type = new Type(type_body);
+    type = await type.save();
+
+    variant_body.type = type._id;
 
     let res = await request(app).post("/authorization").send({
       username: user_body.username,
@@ -68,9 +95,47 @@ describe("Variant Tests", () => {
   test("0. setup", async () => {
     await setup();
 
-    expect(user).toBeDefined();
-    expect(jwt_user).toBeDefined();
-    expect(admin).toBeDefined();
-    expect(jwt_admin).toBeDefined();
+    expect(type).toBeInstanceOf(Object);
+    expect(user).toBeInstanceOf(Object);
+    expect(variant_body.type).not.toEqual(undefined);
+    expect(jwt_user).not.toEqual(undefined);
+    expect(admin).toBeInstanceOf(Object);
+    expect(jwt_admin).not.toEqual(undefined);
+  });
+
+  test("1. size create endpoint performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/size")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(variant_body);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toBeInstanceOf(Object);
+    expect(res.body).toEqual({
+      _id: res.body._id,
+      display: variant_body.display,
+      name: variant_body.name,
+      type: {
+        _id: String(type._id),
+        createdAt: res.body.type.createdAt,
+        display: type.display,
+        name: type.name,
+        sku_shortcode: type.sku_shortcode,
+        updatedAt: res.body.type.updatedAt,
+      },
+      sku_shortcode: variant_body.sku_shortcode,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("2. size create endpoint security check", async () => {
+    let res = await request(app)
+      .post("/sku/size")
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(variant_body);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
   });
 });

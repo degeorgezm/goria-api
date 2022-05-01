@@ -24,6 +24,12 @@ const user_body = {
   username: "johndoe@email.com",
 };
 
+const type_body = {
+  name: "Type",
+  sku_shortcode: "TY",
+  display: true,
+};
+
 describe("Type Tests", () => {
   let admin: IUser;
   let user: IUser;
@@ -66,9 +72,37 @@ describe("Type Tests", () => {
   test("0. setup", async () => {
     await setup();
 
-    expect(user).toBeDefined();
-    expect(jwt_user).toBeDefined();
-    expect(admin).toBeDefined();
-    expect(jwt_admin).toBeDefined();
+    expect(user).toBeInstanceOf(Object);
+    expect(jwt_user).not.toEqual(undefined);
+    expect(admin).toBeInstanceOf(Object);
+    expect(jwt_admin).not.toEqual(undefined);
+  });
+
+  test("1. size create endpoint performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/type")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(type_body);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toBeInstanceOf(Object);
+    expect(res.body).toEqual({
+      _id: res.body._id,
+      display: type_body.display,
+      name: type_body.name,
+      sku_shortcode: type_body.sku_shortcode,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("2. size create endpoint security check", async () => {
+    let res = await request(app)
+      .post("/sku/type")
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(type_body);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
   });
 });

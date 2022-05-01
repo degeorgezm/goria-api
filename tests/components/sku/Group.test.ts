@@ -24,6 +24,12 @@ const user_body = {
   username: "johndoe@email.com",
 };
 
+const group_body = {
+  name: "Group",
+  sku_shortcode: "GR",
+  display: true,
+};
+
 describe("Group Tests", () => {
   let admin: IUser;
   let user: IUser;
@@ -70,5 +76,31 @@ describe("Group Tests", () => {
     expect(jwt_user).toBeDefined();
     expect(admin).toBeDefined();
     expect(jwt_admin).toBeDefined();
+  });
+
+  test("1. group create endpoint performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/group")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(group_body);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toBeInstanceOf(Object);
+    expect(res.body).toEqual({
+      ...group_body,
+      _id: res.body._id,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("2. brand create endpoint security check", async () => {
+    let res = await request(app)
+      .post("/sku/group")
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(group_body);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
   });
 });

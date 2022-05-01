@@ -9,6 +9,7 @@ export interface ISize {
   name: string;
   sku_shortcode: string;
   type: IType | Schema.Types.ObjectId;
+  display: boolean;
   save(): ISize | PromiseLike<ISize>;
 }
 

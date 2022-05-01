@@ -24,6 +24,12 @@ const user_body = {
   username: "johndoe@email.com",
 };
 
+const line_body = {
+  name: "Group",
+  sku_shortcode: "GR",
+  display: true,
+};
+
 describe("Line Tests", () => {
   let admin: IUser;
   let user: IUser;
@@ -70,5 +76,31 @@ describe("Line Tests", () => {
     expect(jwt_user).toBeDefined();
     expect(admin).toBeDefined();
     expect(jwt_admin).toBeDefined();
+  });
+
+  test("1. line create endpoint performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/line")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(line_body);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toBeInstanceOf(Object);
+    expect(res.body).toEqual({
+      ...line_body,
+      _id: res.body._id,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("2. line create endpoint security check", async () => {
+    let res = await request(app)
+      .post("/sku/line")
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(line_body);
+
+    expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
   });
 });

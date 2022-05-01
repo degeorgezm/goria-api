@@ -101,5 +101,6 @@ describe("Brand Tests", () => {
       .send(brand_body);
 
     expect(res.statusCode).toEqual(401);
+    expect(res.body).toEqual({ error: "unauthorized" });
   });
 });
