@@ -6,7 +6,7 @@ import { ParsedQs } from "qs";
 
 import { BaseController } from "../BaseController";
 import { Address, IUser, User } from "../../models";
-import { Schema } from "mongoose";
+import { isDocument } from "./../../functions";
 
 export class AddressController extends BaseController {
   private static populates = "user";
@@ -45,6 +45,7 @@ export class AddressController extends BaseController {
       address = await Address.findById(address._id).populate(
         AddressController.populates
       );
+
       (address.user as IUser).password = "";
       return res.status(201).send(address);
     } catch (error) {
@@ -66,7 +67,12 @@ export class AddressController extends BaseController {
         AddressController.populates
       );
 
-      return address ? res.status(200).send(address) : res.status(404).send({});
+      if (address) {
+        (address.user as IUser).password = "";
+        return res.status(200).send(address);
+      }
+
+      res.status(404).send({ error: "not found" });
     } catch (error) {
       return res.status(400).send(error);
     }
@@ -83,6 +89,9 @@ export class AddressController extends BaseController {
       const addresses = await Address.find({ user: user._id }).populate(
         AddressController.populates
       );
+      addresses.map((address) => {
+        (address.user as IUser).password = "";
+      });
       return res.status(200).send(addresses);
     } catch (error) {
       return res.status(400).send(error);

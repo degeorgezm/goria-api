@@ -60,9 +60,6 @@ describe("Address Tests", () => {
   });
 
   test("1. address create route performs correctly", async () => {
-    expect(user).toBeDefined();
-    expect(jwt).toBeDefined();
-
     let res = await request(app)
       .post("/address/" + user._id)
       .send(address_body);
@@ -128,6 +125,32 @@ describe("Address Tests", () => {
 
     expect(res.body).toBeInstanceOf(Object);
     expect(res.statusCode).toEqual(200);
+    expect(res.body).toEqual({
+      _id: String(address._id),
+      address1: address.address1,
+      billing: address.billing,
+      city: address.city,
+      country: address.country,
+      createdAt: res.body.createdAt,
+      name: address.name,
+      phone: address.phone,
+      shipping: address.shipping,
+      state: address.state,
+      twilio: address.twilio,
+      updatedAt: res.body.updatedAt,
+      user: {
+        _id: String(address.user),
+        createdAt: res.body.user.createdAt,
+        email: user_body.email,
+        firstName: user_body.firstName,
+        lastName: user_body.lastName,
+        password: "",
+        role: 7,
+        updatedAt: res.body.user.updatedAt,
+        username: user_body.username,
+      },
+      zip: address.zip,
+    });
   });
 
   test("3. address read all route performs correctly", async () => {
