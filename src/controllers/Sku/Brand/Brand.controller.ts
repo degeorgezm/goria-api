@@ -34,7 +34,9 @@ export class BrandController extends BaseController {
       let brand = await new Brand({
         ...req.body,
       }).save();
-      brand = await Brand.findById(id).populate(BrandController.populates);
+      brand = await Brand.findById(brand._id).populate(
+        BrandController.populates
+      );
       return res.status(201).send(brand);
     } catch (error) {
       return res.status(400).send(error);

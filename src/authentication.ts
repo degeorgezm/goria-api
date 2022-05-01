@@ -17,7 +17,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import express from "express";
 
-import { IUser, User } from "./models";
+import { User } from "./models";
 
 import { CONFIG, JWT_AUTH_HEADER } from "./config";
 
@@ -40,13 +40,16 @@ export const setAuthorizationStrategy = (app) => {
     new LocalStrategy(async (username, password, done) => {
       try {
         const user = await User.findOne({ username });
-        if (!user) return done({ error: "user not found" });
+        if (!user) return done("User not found", null);
 
         const valid = await user.validPassword(password);
-        if (!valid) return done({ error: "incorrect password" });
-        return done(null, user);
+        if (!valid) {
+          return done("Incorrect password", null);
+        } else {
+          return done(null, user);
+        }
       } catch (error) {
-        return done(error);
+        return done(error, null);
       }
     })
   );
@@ -69,7 +72,7 @@ export const setAuthorizationStrategy = (app) => {
           const user = await User.findOne({ _id: jwtPayload.user_id });
           return done(null, user);
         } catch (error) {
-          return done(error);
+          return done(error, null);
         }
       }
     )
@@ -90,12 +93,9 @@ auth.NONE = (req, res, next) => {
 // Basic Authentication strategy is used to verify username and password for an Admin, and set the JWT Token
 // which is passed to the /controllers/administrators/authenticate function
 auth.BASIC = (req, res, next) => {
-  passport.authenticate("local", (err, user) => {
+  passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);
-    if (!user)
-      return res.status(404).send({
-        error: "user not found",
-      });
+    if (!user) return res.status(404).send({ error: "user not found" });
 
     const token = user.generateToken();
     req.token = token;
@@ -108,10 +108,14 @@ auth.BASIC = (req, res, next) => {
 // Verify the JWT is valid and set the user role before executing the rest of the route
 auth.TOKEN = (req, res, next) => {
   passport.authenticate("jwt", { session: false }, (err, user) => {
-    if (err) return next(err);
-    if (!user) return res.status(404).send({ error: "user not found" });
-    req.user = user;
-    return next();
+    if (err) {
+      return next(err);
+    } else if (!user) {
+      return res.status(404).send({ error: "user not found" });
+    } else {
+      req.user = user;
+      return next();
+    }
   })(req, res, next);
 };
 
@@ -141,15 +145,7 @@ roles.ADMIN = (req, res, next) => {
 // Controller Functions
 
 export const authenticate = (req, res) => {
-  const user = req.user;
-  if (user)
-    res.status(200).set(JWT_AUTH_HEADER, req.token).send({
-      user_id: user._id,
-      role: user.role,
-      admin: user.admin(),
-      updatedAt: user.updatedAt,
-    });
-  return res.status(401).send({ error: "authentication error" });
+  res.status(200).set(JWT_AUTH_HEADER, req.token).send(req.user);
 };
 
 export const verifyToken = (req, res) => {
@@ -161,7 +157,7 @@ export const verifyToken = (req, res) => {
       admin: user.admin(),
       updatedAt: user.updatedAt,
     });
-  return res.status(401).send({ error: "authentication error" });
+  return res.status(401).send({});
 };
 
 // Routes
@@ -169,4 +165,4 @@ export const verifyToken = (req, res) => {
 export const authRouter = express.Router({ strict: true });
 
 authRouter.post("/", auth.BASIC, roles.NONE, authenticate);
-authRouter.get("/", auth.TOKEN, roles.NONE, verifyToken);
+authRouter.get("/", auth.TOKEN, roles.USER, verifyToken);

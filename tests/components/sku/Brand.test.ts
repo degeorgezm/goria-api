@@ -3,7 +3,7 @@ import { connect, disconnect } from "mongoose";
 import request from "supertest";
 
 import { app } from "../../../src/server";
-import { User, IUser, Roles, Brand } from "../../../src/models";
+import { User, IUser, Roles, Brand, IBrand } from "../../../src/models";
 import { JWT_AUTH_HEADER } from "../../../src/config";
 
 const admin_body = {
@@ -22,6 +22,12 @@ const user_body = {
   email: "johndoe@email.com",
   role: Roles.USER,
   username: "johndoe@email.com",
+};
+
+const brand_body = {
+  name: "Brand",
+  sku_shortcode: "BR",
+  display: true,
 };
 
 describe("Brand Tests", () => {
@@ -66,9 +72,34 @@ describe("Brand Tests", () => {
   test("0. setup", async () => {
     await setup();
 
-    expect(user).toBeDefined();
-    expect(jwt_user).toBeDefined();
-    expect(admin).toBeDefined();
-    expect(jwt_admin).toBeDefined();
+    expect(user).toBeInstanceOf(Object);
+    expect(jwt_user).not.toEqual(undefined);
+    expect(admin).toBeInstanceOf(Object);
+    expect(jwt_admin).not.toEqual(undefined);
+  });
+
+  test("1. brand create endpoint performs correctly", async () => {
+    let res = await request(app)
+      .post("/sku/brand")
+      .set(JWT_AUTH_HEADER, jwt_admin)
+      .send(brand_body);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toBeInstanceOf(Object);
+    expect(res.body).toEqual({
+      ...brand_body,
+      _id: res.body._id,
+      createdAt: res.body.createdAt,
+      updatedAt: res.body.updatedAt,
+    });
+  });
+
+  test("2. brand create endpoint security check", async () => {
+    let res = await request(app)
+      .post("/sku/brand")
+      .set(JWT_AUTH_HEADER, jwt_user)
+      .send(brand_body);
+
+    expect(res.statusCode).toEqual(401);
   });
 });

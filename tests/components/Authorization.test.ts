@@ -86,6 +86,7 @@ describe("Authorization Tests", () => {
       .get("/authorization")
       .set(JWT_AUTH_HEADER, "foo_bar" + jwt);
 
+    expect(res.body).toEqual({ error: "user not found" });
     expect(res.statusCode).toEqual(404);
   });
 });

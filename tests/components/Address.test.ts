@@ -55,8 +55,8 @@ describe("Address Tests", () => {
   test("0. setup", async () => {
     await setup();
 
-    expect(user).toBeDefined();
-    expect(jwt).toBeDefined();
+    expect(jwt).not.toBeUndefined();
+    expect(user).toBeInstanceOf(Object);
   });
 
   test("1. address create route performs correctly", async () => {
@@ -70,10 +70,11 @@ describe("Address Tests", () => {
     });
 
     res = await request(app)
-      .post("/address/" + String(user._id))
+      .post("/address/" + user._id)
       .set(JWT_AUTH_HEADER, jwt)
       .send(address_body);
 
+    expect(res.statusCode).toEqual(201);
     expect(res.body).toEqual({
       _id: res.body._id,
       twilio: "1" + address_body.phone,
@@ -94,7 +95,6 @@ describe("Address Tests", () => {
       },
       ...address_body,
     });
-    expect(res.statusCode).toEqual(201);
 
     res = await request(app)
       .post("/address/" + String(user._id))
