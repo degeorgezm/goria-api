@@ -15,7 +15,7 @@
 import express from "express";
 
 import { setAuthorizationStrategy, authRouter } from "./authentication";
-import { userRouter, addressRouter, imageRouter } from "./routes";
+import { userRouter, addressRouter, imageRouter, skuRouter } from "./routes";
 
 import { PORT, LOGGING_ENABLED, VERSION } from "./config";
 import { Server } from "http";
@@ -53,6 +53,7 @@ app.use("/user", userRouter);
 app.use("/address", addressRouter);
 app.use("/authorization", authRouter);
 app.use("/image", imageRouter);
+app.use("/sku", skuRouter);
 
 setAuthorizationStrategy(app);
 

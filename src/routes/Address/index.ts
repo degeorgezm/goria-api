@@ -1,3 +1,3 @@
 /** @format */
 
-export { router as addressRouter } from "./routes";
+export { router as addressRouter } from "./Address.routes";

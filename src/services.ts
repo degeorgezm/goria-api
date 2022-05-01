@@ -2,10 +2,9 @@
 
 // External Dependencies
 
-import { Roles } from "./schemas/Users/User";
 import { connect } from "./database";
 
-import { User } from "./schemas";
+import { User, Roles } from "./models";
 
 import { SECRET_KEY } from "./config";
 

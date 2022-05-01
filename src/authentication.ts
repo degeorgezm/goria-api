@@ -17,7 +17,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import express from "express";
 
-import { IUser, User } from "./schemas";
+import { IUser, User } from "./models";
 
 import { CONFIG, JWT_AUTH_HEADER } from "./config";
 

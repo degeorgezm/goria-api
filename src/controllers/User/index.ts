@@ -1,3 +1,3 @@
 /** @format */
 
-export { userController } from "./User";
+export { userController, UserController } from "./User.controller";

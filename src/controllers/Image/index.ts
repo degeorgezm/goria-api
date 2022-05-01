@@ -1,3 +1,3 @@
 /** @format */
 
-export { imageController } from "./Image";
+export { imageController, ImageController } from "./Image.controller";

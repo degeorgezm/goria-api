@@ -1,3 +1,3 @@
 /** @format */
 
-export { addressController } from "./Address";
+export { addressController, AddressController } from "./Address.controller";

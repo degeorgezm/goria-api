@@ -1,3 +1,3 @@
 /** @format */
 
-export { router as imageRouter } from "./routes";
+export { router as imageRouter } from "./Image.routes";
