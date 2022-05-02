@@ -17,3 +17,14 @@ export {
   Size,
   ISize,
 } from "./Sku";
+export {
+  Sale,
+  ISale,
+  SaleType,
+  PriceChange,
+  IPriceChange,
+  PriceChangeType,
+  Product,
+  IProduct,
+  CurrencyType,
+} from "./Product";

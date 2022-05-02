@@ -1,7 +1,6 @@
 /** @format */
 
-import mongoose, { Schema, model } from "mongoose";
-import mongooseDeepPopulate from "mongoose-deep-populate";
+import { Schema, model } from "mongoose";
 
 import {
   IBrand,
@@ -11,51 +10,44 @@ import {
   IType,
   IVariant,
   IUser,
-  IProduct,
-} from "../..";
+  SaleType,
+} from "./../../../models";
 
-export enum SaleType {
-  AMOUNT = "amount",
+export enum PriceChangeType {
+  FIXED = "fixed",
   PERCENTAGE = "percentage",
-  NO_OP = "no_op",
+  AMOUNT = "amount",
+  NOOP = "noop",
 }
 
 // 1. Create an interface representing a document in MongoDB.
-export interface ISale {
+export interface IPriceChange {
   _id: Schema.Types.ObjectId;
   title: string;
   description: string;
-  type: SaleType;
+  type: PriceChangeType;
   value: number;
-  minimum: number;
-  maximum: number;
-  start: Date;
-  end: Date;
-  stackable: boolean;
   free_shipping: boolean;
+  effective_date: Date;
   brands: [Schema.Types.ObjectId | IBrand];
   lines: [Schema.Types.ObjectId | ILine];
   types: [Schema.Types.ObjectId | IType];
   variants: [Schema.Types.ObjectId | IVariant];
   groups: [Schema.Types.ObjectId | IGroup];
   sizes: [Schema.Types.ObjectId | ISize];
-  products: [Schema.Types.ObjectId | IProduct];
+  products: [Schema.Types.ObjectId];
   _user: Schema.Types.ObjectId | IUser;
-  save(): ISale | PromiseLike<ISale>;
+  save(): IPriceChange | PromiseLike<IPriceChange>;
 }
 
-const SaleSchema = new Schema(
+const PriceChangeSchema = new Schema(
   {
-    title: { type: String, required: true },
+    title: { type: String, required: false },
     description: { type: String, required: false },
-    type: { type: String, enum: SaleType, required: true },
-    value: { type: Number, required: true },
-    minimum: { type: Number, required: false, default: 0 },
-    maximum: { type: Number, required: false, default: 0 },
-    start: { type: Date, required: true },
-    end: { type: Date, required: true },
-    stackable: { type: Boolean, required: false, default: false },
-    free_shipping: { type: Boolean, required: false, default: false },
+    type: { type: String, enum: PriceChangeType, required: true },
+    value: { type: Number, required: false, default: 0.0 },
+    free_shipping: { type: Boolean, required: false },
+    effective_date: { type: Date, required: true },
     brands: [{ type: Schema.Types.ObjectId, ref: "Brand", required: false }],
     lines: [{ type: Schema.Types.ObjectId, ref: "Line", required: false }],
     types: [{ type: Schema.Types.ObjectId, ref: "Type", required: false }],
@@ -64,6 +56,9 @@ const SaleSchema = new Schema(
       { type: Schema.Types.ObjectId, ref: "Variant", required: false },
     ],
     groups: [{ type: Schema.Types.ObjectId, ref: "Group", required: false }],
+    products: [
+      { type: Schema.Types.ObjectId, ref: "Product", required: false },
+    ],
     _user: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   {
@@ -72,7 +67,8 @@ const SaleSchema = new Schema(
   }
 );
 
-SaleSchema.plugin(mongooseDeepPopulate(mongoose), {});
-
 // 3. Create a Model.
-export const Sale = model<ISale>("Sale", SaleSchema);
+export const PriceChange = model<IPriceChange>(
+  "PriceChange",
+  PriceChangeSchema
+);
