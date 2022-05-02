@@ -6,7 +6,6 @@ import { ParsedQs } from "qs";
 
 import { BaseController } from "../BaseController";
 import { Address, IUser, User } from "../../models";
-import { isDocument } from "./../../functions";
 
 export class AddressController extends BaseController {
   private static populates = "user";

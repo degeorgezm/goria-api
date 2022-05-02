@@ -91,8 +91,8 @@ describe("Type Tests", () => {
       display: type_body.display,
       name: type_body.name,
       sku_shortcode: type_body.sku_shortcode,
-      createdAt: res.body.createdAt,
-      updatedAt: res.body.updatedAt,
+      _createdAt: res.body._createdAt,
+      _updatedAt: res.body._updatedAt,
     });
   });
 
@@ -133,8 +133,8 @@ describe("Type Tests", () => {
     expect(res.body).toEqual({
       _id: res.body._id,
       ...type_body,
-      createdAt: res.body.createdAt,
-      updatedAt: res.body.updatedAt,
+      _createdAt: res.body._createdAt,
+      _updatedAt: res.body._updatedAt,
     });
   });
 

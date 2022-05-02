@@ -23,8 +23,8 @@ export interface IImage {
   product?: Schema.Types.ObjectId;
   variant: Schema.Types.ObjectId | IVariant;
   alt?: string;
-  createdAt: string;
-  updatedAt: string;
+  _createdAt: string;
+  _updatedAt: string;
   save(): IImage | PromiseLike<IImage>;
 }
 
@@ -42,7 +42,7 @@ const ImageSchema = new Schema(
   },
   {
     versionKey: false,
-    timestamps: { createdAt: true, updatedAt: true },
+    timestamps: { createdAt: "_createdAt", updatedAt: "_updatedAt" },
   }
 );
 

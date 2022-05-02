@@ -44,8 +44,8 @@ describe("User Tests", () => {
     expect(res.statusCode).toEqual(201);
 
     expect(res.body).toEqual({
-      createdAt: res.body.createdAt,
-      updatedAt: res.body.updatedAt,
+      _createdAt: res.body._createdAt,
+      _updatedAt: res.body._updatedAt,
       role: Number(Roles.USER),
       _id: res.body._id,
       password: res.body.password,

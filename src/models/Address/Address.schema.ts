@@ -21,8 +21,8 @@ export interface IAddress {
   user: Schema.Types.ObjectId | IUser;
   billing?: boolean;
   shipping?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  _createdAt?: string;
+  _updatedAt?: string;
   save(): IAddress | PromiseLike<IAddress>;
 }
 
@@ -45,7 +45,7 @@ const AddressSchema = new Schema(
   },
   {
     versionKey: false,
-    timestamps: { createdAt: true, updatedAt: true },
+    timestamps: { createdAt: "_createdAt", updatedAt: "_updatedAt" },
   }
 );
 

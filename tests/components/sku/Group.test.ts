@@ -89,8 +89,8 @@ describe("Group Tests", () => {
     expect(res.body).toEqual({
       ...group_body,
       _id: res.body._id,
-      createdAt: res.body.createdAt,
-      updatedAt: res.body.updatedAt,
+      _createdAt: res.body._createdAt,
+      _updatedAt: res.body._updatedAt,
     });
   });
 
@@ -131,8 +131,8 @@ describe("Group Tests", () => {
     expect(res.body).toEqual({
       ...group_body,
       _id: res.body._id,
-      createdAt: res.body.createdAt,
-      updatedAt: res.body.updatedAt,
+      _createdAt: res.body._createdAt,
+      _updatedAt: res.body._updatedAt,
     });
   });
 

@@ -27,7 +27,7 @@ const VariantSchema = new Schema(
   },
   {
     versionKey: false,
-    timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" },
+    timestamps: { createdAt: "_createdAt", updatedAt: "_updatedAt" },
   }
 );
 

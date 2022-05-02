@@ -108,15 +108,15 @@ describe("Variant Tests", () => {
       name: variant_body.name,
       type: {
         _id: String(type._id),
-        createdAt: res.body.type.createdAt,
+        _createdAt: res.body.type._createdAt,
         display: type.display,
         name: type.name,
         sku_shortcode: type.sku_shortcode,
-        updatedAt: res.body.type.updatedAt,
+        _updatedAt: res.body.type._updatedAt,
       },
       sku_shortcode: variant_body.sku_shortcode,
-      createdAt: res.body.createdAt,
-      updatedAt: res.body.updatedAt,
+      _createdAt: res.body._createdAt,
+      _updatedAt: res.body._updatedAt,
     });
   });
 
@@ -160,15 +160,15 @@ describe("Variant Tests", () => {
       name: variant_body.name,
       type: {
         _id: String(type._id),
-        createdAt: res.body.type.createdAt,
+        _createdAt: res.body.type._createdAt,
         display: type.display,
         name: type.name,
         sku_shortcode: type.sku_shortcode,
-        updatedAt: res.body.type.updatedAt,
+        _updatedAt: res.body.type._updatedAt,
       },
       sku_shortcode: variant_body.sku_shortcode,
-      createdAt: res.body.createdAt,
-      updatedAt: res.body.updatedAt,
+      _createdAt: res.body._createdAt,
+      _updatedAt: res.body._updatedAt,
     });
   });
 

@@ -155,7 +155,7 @@ export const verifyToken = (req, res) => {
       user_id: user._id,
       role: user.role,
       admin: user.admin(),
-      updatedAt: user.updatedAt,
+      _updatedAt: user._updatedAt,
     });
   return res.status(401).send({});
 };

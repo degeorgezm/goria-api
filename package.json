@@ -11,7 +11,6 @@
   "author": "zach@as3ics.com",
   "main": "index.js",
   "scripts": {
-    "alphabatize": "npx sort-package-json",
     "build": "tsc",
     "build:dev": "tsc --watch --preserveWatchOutput true",
     "coverage": "cross-env NODE_ENV=test jest --silent -w 1 --coverage",
@@ -21,14 +20,15 @@
     "linecount:test": "cloc --by-file-by-lang tests --include-lang=TypeScript",
     "lint": "npm run lint:src",
     "lint:src": "tslint -c ./tslint.json 'src/**/*.ts'",
+    "precommit": "npm run test:all && npm run sort",
     "production": "pm2 start ecosystem.config.js --only goria-api",
     "serve": "nodemon src/index.ts",
+    "sort": "npx sort-package-json",
     "start": "concurrently \"npm run build:dev\" \"nodemon --config nodemon-js.json dist/src/index.js\"",
     "stop": "pm2 delete all",
     "test": "cross-env NODE_ENV=test jest --silent -w 1",
-    "test-all": "npm run typecheck && npm run lint && cross-env NODE_ENV=test jest --silent -w 4",
-    "typecheck": "tsc -p . --noEmit true",
-    "precommit": "npm run typecheck && npm run lint && npm run test"
+    "test:all": "npm run typecheck && npm run lint && npm run test",
+    "typecheck": "tsc -p . --noEmit true"
   },
   "dependencies": {
     "ajv": "^8.11.0",

@@ -84,7 +84,7 @@ const UserSchema = new Schema(
   },
   {
     versionKey: false,
-    timestamps: { createdAt: true, updatedAt: true },
+    timestamps: { createdAt: "_createdAt", updatedAt: "_updatedAt" },
   }
 );
 
