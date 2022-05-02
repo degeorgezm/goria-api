@@ -1,3 +1,9 @@
 /** @format */
 
-export { Product, IProduct, CurrencyType } from "./Product.schema";
+export {
+  Product,
+  IProduct,
+  CurrencyType,
+  CodeType,
+  StockEntry,
+} from "./Product.schema";

@@ -5,7 +5,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../../BaseController";
-import { Line } from "../../../models";
+import { ILine, Line } from "../../../models";
 
 export class LineController extends BaseController {
   private static populates = "";
@@ -57,8 +57,18 @@ export class LineController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
+    const query: Partial<ILine> = {};
+
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
+
     try {
-      const lines = await Line.find({}).populate(LineController.populates);
+      const lines = await Line.find(query).populate(LineController.populates);
       return res.status(200).send(lines);
     } catch (error) {
       return res.status(400).send(error);

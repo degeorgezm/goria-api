@@ -27,6 +27,8 @@ export enum Roles {
   USER = 7,
 }
 
+export const ADMIN_ROLES = [Roles.SUPER_ADMIN, Roles.ADMIN];
+
 export enum Genders {
   MALE = "Male",
   FEMALE = "Female",

@@ -5,7 +5,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../../BaseController";
-import { Variant } from "../../../models";
+import { IVariant, Variant } from "../../../models";
 
 export class VariantController extends BaseController {
   private static populates = "type image";
@@ -61,10 +61,16 @@ export class VariantController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    const type = req.query?.type;
-    const query = {};
-    /* tslint:disable-next-line no-string-literal error */
-    if (type) query["type"] = type;
+    const query: Partial<IVariant> = {};
+
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
+
     try {
       const variants = await Variant.find(query).populate(
         VariantController.populates

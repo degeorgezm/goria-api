@@ -5,16 +5,25 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../BaseController";
-import { Address, IUser, User } from "../../models";
+import {
+  Address,
+  IAddress,
+  IUser,
+  Roles,
+  User,
+  ADMIN_ROLES,
+} from "../../models";
+import { Schema } from "mongoose";
 
 export class AddressController extends BaseController {
   private static populates = "user";
+  private static projection = { user: { password: 0 } };
 
   public async create(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    const id = req.params?.id;
+    const userId = req.params?.id;
 
     const validation = [];
     if (!req.body.name) validation.push("name");
@@ -33,19 +42,13 @@ export class AddressController extends BaseController {
       });
 
     try {
-      const user: any = req.user;
-      if (!user.admin() && String(user._id) !== id)
-        return res.status(400).send({ error: "not authorized" });
-
       let address = await new Address({
         ...req.body,
-        user: id,
+        user: userId,
       }).save();
       address = await Address.findById(address._id).populate(
         AddressController.populates
       );
-
-      (address.user as IUser).password = "";
       return res.status(201).send(address);
     } catch (error) {
       return res.status(400).send(error);
@@ -58,20 +61,13 @@ export class AddressController extends BaseController {
     const id = req.params?.id;
 
     try {
-      const user: any = req.user;
-      if (!user.admin())
-        if (!user) return res.status(400).send({ error: "not authorized" });
-
       const address = await Address.findById(id).populate(
         AddressController.populates
       );
 
-      if (address) {
-        (address.user as IUser).password = "";
-        return res.status(200).send(address);
-      }
-
-      res.status(404).send({ error: "not found" });
+      return address
+        ? res.status(200).send(address)
+        : res.status(404).send({ error: "not found" });
     } catch (error) {
       return res.status(400).send(error);
     }
@@ -80,17 +76,20 @@ export class AddressController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    try {
-      const user: any = req.user;
-      if (!user.admin())
-        if (!user) return res.status(400).send({ error: "not authorized" });
+    const query: Partial<IAddress> = {};
 
-      const addresses = await Address.find({ user: user._id }).populate(
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
+
+    try {
+      const addresses = await Address.find(query).populate(
         AddressController.populates
       );
-      addresses.map((address) => {
-        (address.user as IUser).password = "";
-      });
       return res.status(200).send(addresses);
     } catch (error) {
       return res.status(400).send(error);
@@ -113,16 +112,15 @@ export class AddressController extends BaseController {
       });
 
     try {
-      const user: any = req.user;
-      if (!user.admin())
-        if (!user) return res.status(400).send({ error: "not authorized" });
-
       let address = await Address.findById(id);
 
       if (!address) return res.status(404).send({ error: "address not found" });
 
       for (const record in req.body) address[record] = req.body[record];
       address = await address.save();
+      address = await Address.findById(address._id).populate(
+        AddressController.populates
+      );
       return res.status(200).send(address);
     } catch (error) {
       return res.status(400).send(error);
@@ -132,38 +130,30 @@ export class AddressController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    const id = req.params?.id;
+    const _id = req.params?.id;
+
+    const query = { _id };
 
     try {
-      let user: any = req.user;
-      if (!user.admin())
-        if (!user) return res.status(400).send({ error: "not authorized" });
+      const address = await Address.findOne(query);
 
-      const address = await Address.findOne({
-        _id: id,
-        user: user._id,
-      });
+      if (!address) return res.status(404).send({ error: "not found" });
 
-      if (!address) return res.status(404).send({ error: "address not found" });
-
-      user = await User.findById(address.user);
+      const user = await User.findById(address.user);
 
       let userUpdated = false;
-      if (String(user.billing_address) === id) {
+      if (String(user.billing_address) === _id) {
         user.billing_address = null;
         userUpdated = true;
       }
-      if (String(user.shipping_address) === id) {
+      if (String(user.shipping_address) === _id) {
         user.shipping_address = null;
         userUpdated = true;
       }
 
       if (userUpdated) await user.save();
 
-      const response = await Address.deleteOne({
-        _id: id,
-        user: String(user._id),
-      });
+      const response = await Address.deleteOne(query);
       return res.status(200).send(response);
     } catch (error) {
       return res.status(400).send({ error });

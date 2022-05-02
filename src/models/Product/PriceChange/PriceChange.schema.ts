@@ -1,6 +1,7 @@
 /** @format */
 
 import { Schema, model } from "mongoose";
+import { IProduct } from "../Product";
 
 import {
   IBrand,
@@ -10,14 +11,13 @@ import {
   IType,
   IVariant,
   IUser,
-  SaleType,
 } from "./../../../models";
 
 export enum PriceChangeType {
   FIXED = "fixed",
   PERCENTAGE = "percentage",
   AMOUNT = "amount",
-  NOOP = "noop",
+  NO_OP = "no_op",
 }
 
 // 1. Create an interface representing a document in MongoDB.
@@ -29,13 +29,13 @@ export interface IPriceChange {
   value: number;
   free_shipping: boolean;
   effective_date: Date;
-  brands: [Schema.Types.ObjectId | IBrand];
-  lines: [Schema.Types.ObjectId | ILine];
-  types: [Schema.Types.ObjectId | IType];
-  variants: [Schema.Types.ObjectId | IVariant];
-  groups: [Schema.Types.ObjectId | IGroup];
-  sizes: [Schema.Types.ObjectId | ISize];
-  products: [Schema.Types.ObjectId];
+  brands: Schema.Types.ObjectId[] | IBrand[];
+  lines: Schema.Types.ObjectId[] | ILine[];
+  types: Schema.Types.ObjectId[] | IType[];
+  variants: Schema.Types.ObjectId[] | IVariant[];
+  groups: Schema.Types.ObjectId[] | IGroup[];
+  sizes: Schema.Types.ObjectId[] | ISize[];
+  products: Schema.Types.ObjectId[] | IProduct[];
   _user: Schema.Types.ObjectId | IUser;
   save(): IPriceChange | PromiseLike<IPriceChange>;
 }

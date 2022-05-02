@@ -5,7 +5,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../../BaseController";
-import { Type } from "../../../models";
+import { IType, Type } from "../../../models";
 
 export class TypeController extends BaseController {
   private static populates = "";
@@ -56,8 +56,18 @@ export class TypeController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
+    const query: Partial<IType> = {};
+
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
+
     try {
-      const types = await Type.find({}).populate(TypeController.populates);
+      const types = await Type.find(query).populate(TypeController.populates);
       return res.status(200).send(types);
     } catch (error) {
       return res.status(400).send(error);

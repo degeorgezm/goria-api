@@ -17,7 +17,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { ExtractJwt, Strategy as JwtStrategy } from "passport-jwt";
 import express from "express";
 
-import { User } from "./models";
+import { IUser, User } from "./models";
 
 import { CONFIG, JWT_AUTH_HEADER } from "./config";
 
@@ -40,16 +40,14 @@ export const setAuthorizationStrategy = (app) => {
     new LocalStrategy(async (username, password, done) => {
       try {
         const user = await User.findOne({ username });
-        if (!user) return done("User not found", null);
+        if (!user) return done("User not found");
 
         const valid = await user.validPassword(password);
-        if (!valid) {
-          return done("Incorrect password", null);
-        } else {
-          return done(null, user);
-        }
+        if (valid) return done(null, user);
+
+        return done("Incorrect password");
       } catch (error) {
-        return done(error, null);
+        return done(error);
       }
     })
   );
@@ -72,7 +70,7 @@ export const setAuthorizationStrategy = (app) => {
           const user = await User.findOne({ _id: jwtPayload.user_id });
           return done(null, user);
         } catch (error) {
-          return done(error, null);
+          return done(error);
         }
       }
     )
@@ -93,7 +91,7 @@ auth.NONE = (req, res, next) => {
 // Basic Authentication strategy is used to verify username and password for an Admin, and set the JWT Token
 // which is passed to the /controllers/administrators/authenticate function
 auth.BASIC = (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
+  passport.authenticate("local", (err, user) => {
     if (err) return next(err);
     if (!user) return res.status(404).send({ error: "user not found" });
 

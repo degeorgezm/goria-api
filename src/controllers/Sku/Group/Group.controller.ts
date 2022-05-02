@@ -5,7 +5,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../../BaseController";
-import { Group } from "../../../models";
+import { Group, IGroup } from "../../../models";
 
 export class GroupController extends BaseController {
   private static populates = "";
@@ -61,8 +61,20 @@ export class GroupController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
+    const query: Partial<IGroup> = {};
+
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
+
     try {
-      const groups = await Group.find({}).populate(GroupController.populates);
+      const groups = await Group.find(query).populate(
+        GroupController.populates
+      );
       return res.status(200).send(groups);
     } catch (error) {
       return res.status(400).send(error);

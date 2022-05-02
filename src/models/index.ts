@@ -1,8 +1,9 @@
 /** @format */
 
-export { User, IUser, Roles, Genders } from "./User";
+export { User, IUser, Roles, Genders, ADMIN_ROLES } from "./User";
 export { Address, IAddress } from "./Address";
 export { Image, IImage, ImageType } from "./Image";
+export { Meta, IMeta, retrieveMeta } from "./Meta";
 export {
   Brand,
   IBrand,
@@ -27,4 +28,6 @@ export {
   Product,
   IProduct,
   CurrencyType,
+  StockEntry,
+  CodeType,
 } from "./Product";

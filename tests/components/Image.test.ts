@@ -26,7 +26,7 @@ const admin_body = {
   username: "admin",
 };
 
-describe("User Tests", () => {
+describe("Image Tests", () => {
   (async () => {
     await User.deleteMany({});
   })();

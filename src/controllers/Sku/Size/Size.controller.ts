@@ -5,7 +5,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../../BaseController";
-import { Size } from "../../../models";
+import { ISize, Size } from "../../../models";
 
 export class SizeController extends BaseController {
   private static populates = "type";
@@ -57,11 +57,15 @@ export class SizeController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    const type = req.query?.type;
+    const query: Partial<ISize> = {};
 
-    const query = {};
-    /* tslint:disable-next-line no-string-literal error */
-    if (type) query["type"] = type;
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
 
     try {
       const sizes = await Size.find(query).populate(SizeController.populates);

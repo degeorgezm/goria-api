@@ -127,6 +127,10 @@ export const DEFAULT_SETTINGS_DOC_NAME = requireEnv(
   "default"
 );
 
+export const SUPER_ADMIN_USERNAME = requireEnv("SUPER_ADMIN_USERNAME", "admin");
+export const SUPER_ADMIN_EMAIL = requireEnv("SUPER_ADMIN_EMAIL");
+export const SUPER_ADMIN_FNAME = requireEnv("SUPER_ADMIN_FNAME");
+export const SUPER_ADMIN_LNAME = requireEnv("SUPER_ADMIN_LNAME");
 export const SECRET_KEY = requireEnv("SECRET_KEY");
 
 export const CONFIG = {
@@ -149,3 +153,8 @@ export const CONFIG = {
     expiration: "30d",
   },
 };
+
+export const META_KEY_PRODUCT_COUNT = requireEnv(
+  "META_KEY_PRODUCT_COUNT",
+  "ADMIN_PRODUCT_COUNT_META_KEY"
+);

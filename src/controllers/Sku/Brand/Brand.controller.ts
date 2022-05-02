@@ -5,7 +5,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../../BaseController";
-import { Brand } from "../../../models";
+import { Brand, IBrand } from "../../../models";
 
 export class BrandController extends BaseController {
   private static populates = "";
@@ -59,8 +59,20 @@ export class BrandController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
+    const query: Partial<IBrand> = {};
+
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
+
     try {
-      const brands = await Brand.find({}).populate(BrandController.populates);
+      const brands = await Brand.find(query).populate(
+        BrandController.populates
+      );
       return res.status(200).send(brands);
     } catch (error) {
       return res.status(400).send(error);

@@ -33,13 +33,13 @@ export interface ISale {
   end: Date;
   stackable: boolean;
   free_shipping: boolean;
-  brands: [Schema.Types.ObjectId | IBrand];
-  lines: [Schema.Types.ObjectId | ILine];
-  types: [Schema.Types.ObjectId | IType];
-  variants: [Schema.Types.ObjectId | IVariant];
-  groups: [Schema.Types.ObjectId | IGroup];
-  sizes: [Schema.Types.ObjectId | ISize];
-  products: [Schema.Types.ObjectId | IProduct];
+  brands: Schema.Types.ObjectId[] | IBrand[];
+  lines: Schema.Types.ObjectId[] | ILine[];
+  types: Schema.Types.ObjectId[] | IType[];
+  variants: Schema.Types.ObjectId[] | IVariant[];
+  groups: Schema.Types.ObjectId[] | IGroup[];
+  sizes: Schema.Types.ObjectId[] | ISize[];
+  products: Schema.Types.ObjectId[] | IProduct[];
   _user: Schema.Types.ObjectId | IUser;
   save(): ISale | PromiseLike<ISale>;
 }

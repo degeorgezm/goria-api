@@ -1,7 +1,10 @@
 /** @format */
 
+import { FetchSkuArgs } from "functions";
 import mongoose, { Schema, model } from "mongoose";
 import mongooseDeepPopulate from "mongoose-deep-populate";
+import { IPriceChange } from "../PriceChange";
+import { Sale } from "../Sale";
 
 import {
   IBrand,
@@ -14,6 +17,8 @@ import {
   ISale,
   IImage,
 } from "./../../../models";
+
+export type CodeType = string;
 
 export enum CurrencyType {
   USD = "USD", // US Dollar
@@ -44,6 +49,17 @@ export enum CurrencyType {
   VND = "VND", // Vietnam Dong
 }
 
+export interface StockEntry {
+  variant: Schema.Types.ObjectId | IVariant;
+  sizes: Schema.Types.ObjectId[] | ISize[];
+  inventory: number[];
+  sold: number[];
+  returned: number[];
+  loss: number[];
+  skus: string[];
+  upcs?: string[];
+}
+
 // 1. Create an interface representing a document in MongoDB.
 export interface IProduct {
   _id: Schema.Types.ObjectId;
@@ -53,32 +69,22 @@ export interface IProduct {
   type: Schema.Types.ObjectId | IType;
   line: Schema.Types.ObjectId | ILine;
   brand: Schema.Types.ObjectId | IBrand;
-  variants: [Schema.Types.ObjectId | IVariant];
-  sizes: [Schema.Types.ObjectId | ISize];
+  variants: Schema.Types.ObjectId[] | IVariant[];
+  sizes: Schema.Types.ObjectId[] | ISize[];
   image: Schema.Types.ObjectId | IImage;
-  images: [Schema.Types.ObjectId | IImage];
-  groups: [Schema.Types.ObjectId | IGroup];
-  sales: [Schema.Types.ObjectId | ISale];
+  images: Schema.Types.ObjectId[] | IImage[];
+  groups: Schema.Types.ObjectId[] | IGroup[];
+  sales: Schema.Types.ObjectId[] | ISale[];
+  price_changes: Schema.Types.ObjectId[] | IPriceChange[];
   price: number;
   currency: CurrencyType;
-  tags: [string];
-  code: string;
+  tags: string[];
+  code: CodeType;
   sold: number;
   returned: number;
   loss: number;
   free_shipping: boolean;
-  stock: [
-    {
-      variant: Schema.Types.ObjectId | IVariant;
-      sizes: [Schema.Types.ObjectId | ISize];
-      inventory: [number];
-      sold: [number];
-      returned: [number];
-      loss: [number];
-      skus: [string];
-      upcs: [string];
-    }
-  ];
+  stock: StockEntry[];
   _user: Schema.Types.ObjectId | IUser;
   _deleted: boolean;
   sale(): boolean;
@@ -99,10 +105,13 @@ const ProductSchema = new Schema(
     iamges: [{ type: Schema.Types.ObjectId, ref: "Images", required: false }],
     groups: [{ type: Schema.Types.ObjectId, ref: "Group", required: false }],
     sales: [{ type: Schema.Types.ObjectId, ref: "Sale", required: false }],
+    price_changes: [
+      { type: Schema.Types.ObjectId, ref: "PriceChange", required: false },
+    ],
     price: { type: Number, required: true },
     currency: { type: String, enum: CurrencyType, required: true },
     tags: [{ type: String, required: false }],
-    code: { type: String, required: false },
+    code: { type: String, required: true },
     sold: { type: Number, required: false, default: 0 },
     returned: { type: Number, required: false, default: 0 },
     loss: { type: Number, required: false, default: 0 },
@@ -131,6 +140,21 @@ const ProductSchema = new Schema(
     timestamps: { createdAt: "_createdAt", updatedAt: "_updatedAt" },
   }
 );
+
+ProductSchema.methods.sale = async function (): Promise<boolean> {
+  if (this.sales.length === 0) return false;
+
+  const now = new Date();
+  const sales: ISale[] =
+    typeof this.sales[0] === typeof Schema.Types.ObjectId
+      ? await Sale.find({ _id: { $in: this.sales } })
+      : (this.sales as ISale[]);
+
+  for (const sale of sales)
+    if (sale.start <= now && sale.end >= now) return true;
+
+  return false;
+};
 
 ProductSchema.plugin(mongooseDeepPopulate(mongoose), {});
 

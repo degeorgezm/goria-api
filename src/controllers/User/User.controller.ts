@@ -5,7 +5,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 
 import { BaseController } from "../BaseController";
-import { Address, User, Roles } from "../../models";
+import { Address, User, Roles, IUser } from "../../models";
 
 export class UserController extends BaseController {
   private static populates = "billing_address shipping_address image";
@@ -32,11 +32,12 @@ export class UserController extends BaseController {
         .send({ error: { validation: validation.toLocaleString() } });
 
     try {
-      const user = await User.create({
+      let user = await User.create({
         ...req.body,
         role: Roles.USER,
         username: req.body.email,
       });
+      user = await User.findById(user._id);
       return res.status(201).send(user);
     } catch (error) {
       return res.status(400).send(error);
@@ -53,7 +54,9 @@ export class UserController extends BaseController {
     try {
       const user = await User.findById(id).populate(UserController.populates);
       if (user) delete user.password;
-      return user ? res.status(200).send(user) : res.status(404).send({});
+      return user
+        ? res.status(200).send(user)
+        : res.status(404).send({ error: "not found" });
     } catch (error) {
       return res.status(400).send(error);
     }
@@ -62,9 +65,18 @@ export class UserController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
+    const query: Partial<IUser> = {};
+
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
+
     try {
-      const users = await User.find({}).populate(UserController.populates);
-      users.map((user) => delete user.password);
+      const users = await User.find(query).populate(UserController.populates);
       return res.status(200).send(users);
     } catch (error) {
       return res.status(400).send(error);

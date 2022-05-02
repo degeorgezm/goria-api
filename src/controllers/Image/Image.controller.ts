@@ -304,8 +304,20 @@ export class ImageController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
+    const query: Partial<IImage> = {};
+
+    for (const index in req.query)
+      query[index] =
+        typeof req.query === "object" // is Array
+          ? {
+              $in: req.query[index],
+            }
+          : req.query[index];
+
     try {
-      const images = await Image.find({});
+      const images = await Image.find(query).populate(
+        ImageController.populates
+      );
       return res.status(200).send(images);
     } catch (err) {
       return res.status(500).send({ error: err });
@@ -316,13 +328,6 @@ export class ImageController extends BaseController {
     res: Response<any, Record<string, any>>
   ) {
     const id = req.params?.id;
-
-    const validation = [];
-
-    if (validation.length !== 0)
-      return res.status(400).send({
-        error: { validation: validation.toLocaleString() },
-      });
 
     try {
       const image = await Image.findById(id);
@@ -388,11 +393,11 @@ export class ImageController extends BaseController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ) {
-    const id = req.params?.id;
+    const _id = req.params?.id;
 
     try {
-      const image = await Image.findById(id);
-      if (!image) return res.status(404).send({ error: "Image not found." });
+      const image = await Image.findById(_id);
+      if (!image) return res.status(404).send({ error: "not found." });
 
       await s3.deleteObject(s3ImageParams(image)).promise();
       switch (image.type) {
@@ -415,7 +420,7 @@ export class ImageController extends BaseController {
       }
 
       const response = await Image.deleteOne({
-        _id: id,
+        _id,
       });
       return res.status(200).send(response);
     } catch (err) {

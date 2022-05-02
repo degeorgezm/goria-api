@@ -12,7 +12,7 @@
  *
  */
 
-import { initialize } from "./services";
+import { initialize } from "./initialize";
 import { start } from "./server";
 
 async function main() {

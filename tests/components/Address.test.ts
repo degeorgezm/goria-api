@@ -88,7 +88,7 @@ describe("Address Tests", () => {
         email: user_body.email,
         firstName: user_body.firstName,
         lastName: user_body.lastName,
-        password: "",
+        password: res.body.user.password,
         role: 7,
         _updatedAt: res.body.user._updatedAt,
         username: user_body.username,
@@ -144,7 +144,7 @@ describe("Address Tests", () => {
         email: user_body.email,
         firstName: user_body.firstName,
         lastName: user_body.lastName,
-        password: "",
+        password: res.body.user.password,
         role: 7,
         _updatedAt: res.body.user._updatedAt,
         username: user_body.username,
@@ -303,7 +303,7 @@ describe("Address Tests", () => {
 
     expect(addresses.length).toEqual(1);
 
-    expect(addresses[0]._id).not.toEqual(previous_id);
+    expect(String(addresses[0]._id)).not.toEqual(previous_id);
 
     res = await request(app)
       .delete("/address/" + previous_id)
